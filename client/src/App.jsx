@@ -4664,11 +4664,15 @@ function PatientHistory({ navigate, onToast }) {
 
 const CLINICAL_CATEGORY_HEADERS = {
   "Clinical Pathology": "HAEMATOLOGY REPORT",
+  "Hematology": "HAEMATOLOGY REPORT",
+  "Haematology": "HAEMATOLOGY REPORT",
   "Bio Chemistry": "BIO-CHEMISTRY REPORT",
+  "Biochemistry": "BIO-CHEMISTRY REPORT",
   "Urine Examinations": "COMPLETE URINE EXAMINATION REPORT",
   "Motion Examination": "MOTION EXAMINATION REPORT",
   "Semen Analysis": "SEMEN ANALYSIS REPORT",
   "Additional Tests": "SPECIAL INVESTIGATION REPORT",
+  "Special Investigations": "SPECIAL INVESTIGATION REPORT",
 };
 
 function formatCategoryHeader(categoryName) {
@@ -4683,9 +4687,9 @@ const CLINICAL_TEST_CONFIG = {
     method: "",
     unit: "gms %",
     referenceLines: [
-      "Male:    14 - 17 gms %",
-      "Female: 12 - 15 gms %",
-      "Child :  11.0 - 14.0 gms %",
+      "Male: 14 - 17 gms %",
+      "Females: 12 - 15 gms %",
+      "Child : 11.0 - 14.0 gms %",
     ],
   },
   "Haemoglobin": {
@@ -4693,10 +4697,46 @@ const CLINICAL_TEST_CONFIG = {
     method: "",
     unit: "gms %",
     referenceLines: [
-      "Male:    14 - 17 gms %",
-      "Female: 12 - 15 gms %",
-      "Child :  11.0 - 14.0 gms %",
+      "Male: 14 - 17 gms %",
+      "Females: 12 - 15 gms %",
+      "Child : 11.0 - 14.0 gms %",
     ],
+  },
+  "Platelet Count": {
+    displayName: "Platelet Count",
+    method: "",
+    unit: "Lakhs/cu.mm",
+    referenceLines: ["1.5 - 4.5 Lakhs/cu.mm"],
+  },
+  "ESR": {
+    displayName: "ESR",
+    method: "",
+    unit: "mm/1st hr",
+    referenceLines: ["Male: 0 - 15, Female: 0 - 20 (Westergren)"],
+  },
+  "E.S.R.": {
+    displayName: "ESR",
+    method: "",
+    unit: "mm/1st hr",
+    referenceLines: ["Male: 0 - 15, Female: 0 - 20 (Westergren)"],
+  },
+  "MP": {
+    displayName: "MP",
+    method: "",
+    unit: "Smear Examination",
+    referenceLines: ["Negative / Not Seen"],
+  },
+  "Smear for MP": {
+    displayName: "MP",
+    method: "",
+    unit: "Smear Examination",
+    referenceLines: ["Negative / Not Seen"],
+  },
+  "Malarial Parasite": {
+    displayName: "MP",
+    method: "",
+    unit: "Smear Examination",
+    referenceLines: ["Negative / Not Seen"],
   },
   "TRBC": {
     displayName: "Total R.B.C. Count",
@@ -4710,24 +4750,57 @@ const CLINICAL_TEST_CONFIG = {
     unit: "/cu.mm",
     referenceLines: ["4,000 - 11,000 /cu.mm"],
   },
-  "Platelet Count": {
-    displayName: "Platelet Count",
+
+  // Complete Urine Examination
+  "Sugar": {
+    displayName: "Sugar",
     method: "",
-    unit: "Lakhs/cu.mm",
-    referenceLines: ["1.5 - 4.5 Lakhs/cu.mm"],
+    unit: "Qualitative",
+    referenceLines: ["Nil / Negative"],
   },
+  "Urine Sugar": {
+    displayName: "Sugar",
+    method: "",
+    unit: "Qualitative",
+    referenceLines: ["Nil / Negative"],
+  },
+  "Albumin": {
+    displayName: "Albumin",
+    method: "",
+    unit: "Qualitative",
+    referenceLines: ["Nil / Negative"],
+  },
+  "Urine Albumin": {
+    displayName: "Albumin",
+    method: "",
+    unit: "Qualitative",
+    referenceLines: ["Nil / Negative"],
+  },
+  "Casts": {
+    displayName: "Casts",
+    method: "",
+    unit: "/LPF",
+    referenceLines: ["Not Seen / Nil"],
+  },
+  "Urine Casts": {
+    displayName: "Casts",
+    method: "",
+    unit: "/LPF",
+    referenceLines: ["Not Seen / Nil"],
+  },
+
   // Bio-Chemistry
   "Urea": {
     displayName: "Blood Urea",
     method: "",
     unit: "mg/dl",
-    referenceLines: ["10  -  45  mg/dl"],
+    referenceLines: ["10 - 45 mg/dl"],
   },
   "Blood Urea": {
     displayName: "Blood Urea",
     method: "",
     unit: "mg/dl",
-    referenceLines: ["10  -  45  mg/dl"],
+    referenceLines: ["10 - 45 mg/dl"],
   },
   "Creatinine": {
     displayName: "Serum Creatinine",
@@ -4753,25 +4826,25 @@ const CLINICAL_TEST_CONFIG = {
     displayName: "Random Blood Sugar",
     method: "( Method : GOD-POD )",
     unit: "mg/dl",
-    referenceLines: ["80  -  140  mg/dl"],
+    referenceLines: ["80 - 140 mg/dl"],
   },
   "Random Blood Sugar": {
     displayName: "Random Blood Sugar",
     method: "( Method : GOD-POD )",
     unit: "mg/dl",
-    referenceLines: ["80  -  140  mg/dl"],
+    referenceLines: ["80 - 140 mg/dl"],
   },
   "Serum Glucose (F)": {
     displayName: "Fasting Blood Sugar",
     method: "( Method : GOD-POD )",
     unit: "mg/dl",
-    referenceLines: ["70  -  110  mg/dl"],
+    referenceLines: ["70 - 110 mg/dl"],
   },
   "Fasting Blood Sugar": {
     displayName: "Fasting Blood Sugar",
     method: "( Method : GOD-POD )",
     unit: "mg/dl",
-    referenceLines: ["70  -  110  mg/dl"],
+    referenceLines: ["70 - 110 mg/dl"],
   },
   "Serum Glucose (PP)": {
     displayName: "Post Prandial Blood Sugar",
@@ -4796,6 +4869,50 @@ const CLINICAL_TEST_CONFIG = {
     method: "( Method : Malloy & Evelyn )",
     unit: "mg/dl",
     referenceLines: ["0.2 - 1.2 mg/dl"],
+  },
+
+  // Special Investigation
+  "Vitamin D": {
+    displayName: "Vitamin D",
+    method: "",
+    unit: "ng/mL",
+    referenceLines: ["Sufficiency: 30.0 - 100.0"],
+  },
+  "Vitamin B12": {
+    displayName: "Vitamin B12",
+    method: "",
+    unit: "pg/mL",
+    referenceLines: ["211 - 911"],
+  },
+  "Iron": {
+    displayName: "Iron",
+    method: "",
+    unit: "µg/dL",
+    referenceLines: ["Male: 65 - 175; Female: 50 - 170"],
+  },
+  "Serum Iron": {
+    displayName: "Iron",
+    method: "",
+    unit: "µg/dL",
+    referenceLines: ["Male: 65 - 175; Female: 50 - 170"],
+  },
+  "Thyroid": {
+    displayName: "Thyroid",
+    method: "",
+    unit: "Various",
+    referenceLines: ["TSH: 0.4 - 4.2 µIU/mL, T3/74: Normal"],
+  },
+  "Thyroid Profile": {
+    displayName: "Thyroid",
+    method: "",
+    unit: "Various",
+    referenceLines: ["TSH: 0.4 - 4.2 µIU/mL, T3/74: Normal"],
+  },
+  "HbA1c": {
+    displayName: "HbA1c",
+    method: "",
+    unit: "%",
+    referenceLines: ["Normal: < 5.7%, Diabetic: ≥ 6.5%"],
   },
 };
 
@@ -5273,7 +5390,7 @@ function Reports({ onToast, navigate, route }) {
       box-shadow: none !important;
       margin: 0 !important;
       padding: 8mm 14mm 10mm 14mm !important;
-      border: 1.5px solid #8b1730 !important;
+      border: none !important;
       display: flex !important;
       flex-direction: column !important;
       justify-content: flex-start !important;
@@ -5289,41 +5406,12 @@ function Reports({ onToast, navigate, route }) {
       margin-top: auto !important;
     }
 
-    .report-clinical-table th {
-      color: #5b0a1a !important;
-      font-size: 10.5px !important;
-      font-weight: 800 !important;
-    }
-    .report-clinical-table .cat-heading-row td {
-      color: #5b0a1a !important;
-      font-size: 11.5px !important;
-      font-weight: 900 !important;
-      text-align: center !important;
-      background: transparent !important;
-    }
-    .report-clinical-table .test-name-text,
-    .report-clinical-table .col-unit {
-      color: #5b0a1a !important;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-    .report-clinical-table .test-method-text,
-    .report-clinical-table .col-colon,
-    .report-clinical-table .col-ref {
-      color: #7a1126 !important;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-    .report-clinical-table .result-val-text {
-      color: #111111 !important;
-      font-weight: 800 !important;
-    }
-
-    .taz-ref-top-left-tab, .taz-ref-top-right-tab, .taz-ref-banner, .taz-ref-patient-tab, .taz-ref-bottom-accent-bar {
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-    .taz-ref-patient-card, .taz-ref-icon-circle, .taz-ref-status-badge {
+    .taz-clean-header,
+    .taz-clean-patient-card,
+    .taz-clean-status-pill,
+    .taz-clean-green-icon,
+    .taz-clean-table,
+    .taz-clean-footer {
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
@@ -5816,90 +5904,64 @@ function Reports({ onToast, navigate, route }) {
                         <div className="report-sheet-top">
                           {isFirstPage ? (
                             <>
-                              {/* 1. TOP MAROON BAR: LAB REPORT | ACCURACY · TRUST · CARE | PAGE X OF Y */}
-                              <div className="taz-ref-top-bar">
-                                <div className="taz-ref-top-left-tab">
-                                  <span className="taz-ref-top-left-title">LAB REPORT</span>
-                                  <span className="taz-ref-top-left-line"></span>
-                                </div>
-                                <div className="taz-ref-top-center-motto">
-                                  ACCURACY &nbsp;|&nbsp; TRUST &nbsp;|&nbsp; CARE
-                                </div>
-                                <div className="taz-ref-top-right-tab">
-                                  <div className="taz-ref-page-pill">
-                                    PAGE {pageNumber} OF {totalPages}
-                                  </div>
-                                </div>
+                              {/* PAGE NUMBER (TOP RIGHT) */}
+                              <div className="taz-clean-top-page">
+                                PAGE {pageNumber} OF {totalPages}
                               </div>
 
-                              {/* 2. MAIN BRAND & CONTACT & TRUST SECTION */}
-                              <div className="taz-ref-middle-section">
+                              {/* 3-COLUMN HEADER: LOGO/BRAND | CONTACT | TRUST */}
+                              <div className="taz-clean-header">
                                 {/* Left: Brand Logo & Title */}
-                                <div className="taz-ref-brand-col">
-                                  <div className="taz-ref-swirl-wrapper">
-                                    <svg viewBox="0 0 100 100" className="taz-ref-swirl-svg">
-                                      <defs>
-                                        <clipPath id={`microClip-${pageNumber}`}>
-                                          <circle cx="50" cy="50" r="33" />
-                                        </clipPath>
-                                      </defs>
-                                      {/* Concentric crescent swirls matching reference graphic */}
-                                      <path
-                                        d="M 50 3 A 47 47 0 0 1 97 50 A 47 47 0 0 1 50 97 C 22 97 4 75 4 48 C 4 39 7 30 12 23 C 9 32 11 43 17 50 C 24 60 36 65 49 65 C 60 65 69 61 75 54 C 81 47 83 37 80 27 C 76 15 64 7 50 7 C 42 7 34 10 27 15 C 33 7 41 3 50 3 Z"
-                                        fill="#670b1e"
-                                      />
-                                      <path
-                                        d="M 6 48 C 6 29 18 14 34 8 C 22 14 14 26 14 41 C 14 59 29 74 47 74 C 61 74 73 65 78 53 C 73 68 59 79 42 79 C 22 79 6 66 6 48 Z"
-                                        fill="#861229"
-                                      />
-                                      {/* Center circle with crisp microscope image */}
-                                      <circle cx="50" cy="50" r="33" fill="#ffffff" stroke="#670b1e" strokeWidth="1.2" />
-                                      <image
-                                        href="/microscope.jpg"
-                                        x="22"
-                                        y="19"
-                                        width="56"
-                                        height="62"
-                                        preserveAspectRatio="xMidYMid meet"
-                                        clipPath={`url(#microClip-${pageNumber})`}
-                                      />
+                                <div className="taz-clean-brand-col">
+                                  <div className="taz-clean-logo-badge">
+                                    <svg viewBox="0 0 100 100" className="taz-clean-logo-svg">
+                                      {/* Leaf wreath and crescent */}
+                                      <path d="M 22 75 C 10 65 6 45 14 30 C 18 22 26 15 36 10 C 33 18 33 28 38 36 C 42 42 49 46 56 46 C 48 48 38 52 30 58 C 24 63 22 69 22 75 Z" fill="#2d6a4f" opacity="0.9" />
+                                      <path d="M 16 48 C 10 38 12 25 22 17 C 22 25 26 32 32 37 C 26 40 20 43 16 48 Z" fill="#40916c" />
+                                      <path d="M 12 62 C 6 54 8 42 16 36 C 16 44 20 50 26 54 C 20 56 15 58 12 62 Z" fill="#52b788" />
+                                      {/* Base of microscope */}
+                                      <path d="M 32 82 L 68 82 C 70 82 72 80 72 78 L 28 78 C 28 80 30 82 32 82 Z" fill="#1b4332" />
+                                      <path d="M 44 78 L 56 78 L 56 72 L 44 72 Z" fill="#1b4332" />
+                                      {/* Curved arm */}
+                                      <path d="M 54 72 C 66 70 74 58 72 44 C 70 34 62 26 50 26 L 48 26 L 48 32 L 50 32 C 58 32 64 38 65 46 C 66 54 60 62 52 64 L 50 64 L 50 72 Z" fill="#2d6a4f" />
+                                      {/* Body tube and eyepiece */}
+                                      <g transform="rotate(-30 45 42)">
+                                        <rect x="42" y="14" width="10" height="6" rx="1.5" fill="#1b4332" />
+                                        <rect x="44.5" y="20" width="5" height="10" fill="#2d6a4f" />
+                                        <rect x="40" y="30" width="14" height="26" rx="2" fill="#1b4332" />
+                                        <path d="M 42 56 L 52 56 L 50 64 L 44 64 Z" fill="#40916c" />
+                                        <rect x="45" y="64" width="4" height="8" rx="1" fill="#1b4332" />
+                                      </g>
+                                      {/* Stage */}
+                                      <rect x="34" y="60" width="24" height="4" rx="1" fill="#1b4332" />
+                                      <circle cx="58" cy="52" r="3.5" fill="#40916c" />
+                                      <circle cx="46" cy="70" r="3" fill="#74c69d" />
                                     </svg>
                                   </div>
 
-                                  <div className="taz-ref-brand-info">
-                                    <div className="taz-ref-brand-name">
-                                      <span className="taz-bold">TAZ</span>
-                                      <span className="taz-reg">®</span>
-                                    </div>
-                                    <div className="taz-ref-diag-title">D I A G N O S T I C</div>
-                                    <div className="taz-ref-centre-sub">{settings.subTitle || "LABORATORY & DIAGNOSTIC CENTRE"}</div>
-                                    <div className="taz-ref-accreditation">NABL ACCREDITED MEDICAL LAB &nbsp;|&nbsp; ISO 9001:2015</div>
+                                  <div className="taz-clean-brand-text">
+                                    <div className="taz-clean-title-main">TAZ</div>
+                                    <div className="taz-clean-title-sub">DIAGNOSTIC</div>
+                                    <div className="taz-clean-title-desc">{settings.subTitle || "LABORATORY & DIAGNOSTIC CENTRE"}</div>
+                                    <div className="taz-clean-title-accred">NABL ACCREDITED MEDICAL LAB &nbsp;|&nbsp; ISO 9001:2015</div>
                                   </div>
                                 </div>
 
-                                <div className="taz-ref-vdivider"></div>
-
                                 {/* Center: Contact Info */}
-                                <div className="taz-ref-contact-col">
-                                  <div className="taz-ref-contact-item">
-                                    <div className="taz-ref-icon-circle">
-                                      <Phone size={11} strokeWidth={2.4} />
-                                    </div>
-                                    <span className="taz-ref-phone-text">{settings.phone || "9440985131"}</span>
+                                <div className="taz-clean-contact-col">
+                                  <div className="taz-clean-contact-row">
+                                    <Phone size={13} className="taz-clean-green-icon" />
+                                    <span className="taz-clean-phone-val">{settings.phone || "9440985131"}</span>
                                   </div>
 
-                                  <div className="taz-ref-contact-item">
-                                    <div className="taz-ref-icon-circle">
-                                      <Mail size={11} strokeWidth={2.4} />
-                                    </div>
-                                    <span className="taz-ref-email-text">{settings.email || "tazdiagnostic@gmail.com"}</span>
+                                  <div className="taz-clean-contact-row">
+                                    <Mail size={13} className="taz-clean-green-icon" />
+                                    <span className="taz-clean-email-val">{settings.email || "tazdiagnostic@gmail.com"}</span>
                                   </div>
 
-                                  <div className="taz-ref-contact-item" style={{ alignItems: "flex-start" }}>
-                                    <div className="taz-ref-icon-circle" style={{ marginTop: "1px" }}>
-                                      <MapPin size={11} strokeWidth={2.4} />
-                                    </div>
-                                    <div className="taz-ref-address-text">
+                                  <div className="taz-clean-contact-row taz-clean-align-top">
+                                    <MapPin size={13} className="taz-clean-green-icon" style={{ marginTop: "2px" }} />
+                                    <div className="taz-clean-addr-val">
                                       {settings.address ? (
                                         settings.address.split(", ").map((part, i, arr) => (
                                           <React.Fragment key={i}>
@@ -5909,200 +5971,140 @@ function Reports({ onToast, navigate, route }) {
                                         ))
                                       ) : (
                                         <>
-                                          Dr No: 8-200 RAJKUMAR SILKS,<br />
-                                          Near Raj Kumar Silks Street, Main Road,<br />
-                                          Tallapudi, Rajahmundry - 534341, Andhra Pradesh
+                                          Dr No: 6-200 KA-MUMAK SILKA,<br />
+                                          Nisar Rd Kannar Sise Strvev, Main Road,<br />
+                                          Tallapuat, Rajamundry-580311, Andhra Pradesh
                                         </>
                                       )}
                                     </div>
                                   </div>
 
-                                  <div className="taz-ref-contact-item">
-                                    <div className="taz-ref-icon-circle">
-                                      <Clock size={11} strokeWidth={2.4} />
-                                    </div>
-                                    <span className="taz-ref-badge-247">24/7 Computerized Automated Lab</span>
+                                  <div className="taz-clean-contact-row">
+                                    <Clock size={13} className="taz-clean-green-icon" />
+                                    <span className="taz-clean-lab-247">24/7 Computerized Automated Lab</span>
                                   </div>
                                 </div>
-
-                                <div className="taz-ref-vdivider"></div>
 
                                 {/* Right: Trust Badges */}
-                                <div className="taz-ref-trust-col">
-                                  <div className="taz-ref-trust-item">
-                                    <div className="taz-ref-icon-circle">
-                                      <FlaskConical size={11} strokeWidth={2.2} />
-                                    </div>
-                                    <div className="taz-ref-trust-label">
-                                      <span>ACCURATE</span>
-                                      <span>RESULTS</span>
-                                    </div>
+                                <div className="taz-clean-trust-col">
+                                  <div className="taz-clean-trust-badge">
+                                    <FlaskConical size={14} className="taz-clean-green-icon" />
+                                    <span className="taz-clean-trust-text">ACCURATE<br />RESULTS</span>
                                   </div>
 
-                                  <div className="taz-ref-trust-item">
-                                    <div className="taz-ref-icon-circle">
-                                      <ShieldCheck size={11} strokeWidth={2.2} />
-                                    </div>
-                                    <div className="taz-ref-trust-label">
-                                      <span>TRUSTED</span>
-                                      <span>CARE</span>
-                                    </div>
+                                  <div className="taz-clean-trust-badge">
+                                    <ShieldCheck size={14} className="taz-clean-green-icon" />
+                                    <span className="taz-clean-trust-text">TRUSTED<br />CARE</span>
                                   </div>
 
-                                  <div className="taz-ref-trust-item">
-                                    <div className="taz-ref-icon-circle">
-                                      <Users size={11} strokeWidth={2.2} />
-                                    </div>
-                                    <div className="taz-ref-trust-label">
-                                      <span>HEALTHIER</span>
-                                      <span>TOMORROW</span>
-                                    </div>
+                                  <div className="taz-clean-trust-badge">
+                                    <Users size={14} className="taz-clean-green-icon" />
+                                    <span className="taz-clean-trust-text">HEALTHIER<br />TOMORROW</span>
                                   </div>
                                 </div>
                               </div>
 
-                              {/* 3. DEPARTMENT / INVESTIGATION BANNER */}
-                              <div className="taz-ref-banner">
-                                <div className="taz-ref-banner-icon-box">
-                                  <FileText size={16} color="#ffffff" strokeWidth={2.2} />
-                                </div>
-                                <div className="taz-ref-banner-vrule"></div>
-                                <div className="taz-ref-banner-text-block">
-                                  <div className="taz-ref-banner-title">
-                                    COMPREHENSIVE CLINICAL LABORATORY INVESTIGATION REPORT
-                                  </div>
-                                  <div className="taz-ref-banner-subtitle">
-                                    DEPARTMENT OF PATHOLOGY &amp; DIAGNOSTICS &nbsp;|&nbsp; COMPUTERIZED ANALYSIS
-                                  </div>
-                                </div>
-                                <div className="taz-ref-banner-wave"></div>
+                              {/* PATIENT INFORMATION BOX */}
+                              <div className="taz-clean-patient-heading">
+                                PATIENT INFORMATION
                               </div>
-
-                              {/* 4. PATIENT INFORMATION BOX */}
-                              <div className="taz-ref-patient-card">
-                                <div className="taz-ref-patient-tab">
-                                  <User size={12} strokeWidth={2.5} />
-                                  <span>PATIENT INFORMATION</span>
+                              <div className="taz-clean-patient-card">
+                                {/* Left Column */}
+                                <div className="taz-clean-pi-col">
+                                  <div className="taz-clean-pi-row">
+                                    <CreditCard size={14} className="taz-clean-pi-icon" />
+                                    <span className="taz-clean-pi-label">Patient ID</span>
+                                    <span className="taz-clean-pi-sep">:</span>
+                                    <span className="taz-clean-pi-val">{patient.id}</span>
+                                  </div>
+                                  <div className="taz-clean-pi-row">
+                                    <User size={14} className="taz-clean-pi-icon" />
+                                    <span className="taz-clean-pi-label">Patient Name</span>
+                                    <span className="taz-clean-pi-sep">:</span>
+                                    <span className="taz-clean-pi-val bold-name">{patient.name}</span>
+                                  </div>
+                                  <div className="taz-clean-pi-row">
+                                    <Users size={14} className="taz-clean-pi-icon" />
+                                    <span className="taz-clean-pi-label">Age / Gender</span>
+                                    <span className="taz-clean-pi-sep">:</span>
+                                    <span className="taz-clean-pi-val">{patient.age} Yrs / {patient.gender}</span>
+                                  </div>
+                                  <div className="taz-clean-pi-row">
+                                    <Phone size={14} className="taz-clean-pi-icon" />
+                                    <span className="taz-clean-pi-label">Phone</span>
+                                    <span className="taz-clean-pi-sep">:</span>
+                                    <span className="taz-clean-pi-val">{patient.phone}</span>
+                                  </div>
                                 </div>
 
-                                <div className="taz-ref-patient-grid">
-                                  {/* Left Column */}
-                                  <div className="taz-ref-pi-col">
-                                    <div className="taz-ref-pi-row">
-                                      <div className="taz-ref-pi-icon"><CreditCard size={13} /></div>
-                                      <div className="taz-ref-pi-name">Patient ID</div>
-                                      <div className="taz-ref-pi-colon">:</div>
-                                      <div className="taz-ref-pi-val">{patient.id}</div>
-                                    </div>
-                                    <div className="taz-ref-pi-row">
-                                      <div className="taz-ref-pi-icon"><User size={13} /></div>
-                                      <div className="taz-ref-pi-name">Patient Name</div>
-                                      <div className="taz-ref-pi-colon">:</div>
-                                      <div className="taz-ref-pi-val bold-name">{patient.name}</div>
-                                    </div>
-                                    <div className="taz-ref-pi-row">
-                                      <div className="taz-ref-pi-icon"><Users size={13} /></div>
-                                      <div className="taz-ref-pi-name">Age / Gender</div>
-                                      <div className="taz-ref-pi-colon">:</div>
-                                      <div className="taz-ref-pi-val">{patient.age} Yrs / {patient.gender}</div>
-                                    </div>
-                                    <div className="taz-ref-pi-row">
-                                      <div className="taz-ref-pi-icon"><Phone size={13} /></div>
-                                      <div className="taz-ref-pi-name">Phone</div>
-                                      <div className="taz-ref-pi-colon">:</div>
-                                      <div className="taz-ref-pi-val">{patient.phone}</div>
-                                    </div>
+                                {/* Right Column */}
+                                <div className="taz-clean-pi-col">
+                                  <div className="taz-clean-pi-row">
+                                    <FileText size={14} className="taz-clean-pi-icon" />
+                                    <span className="taz-clean-pi-label">Report Code</span>
+                                    <span className="taz-clean-pi-sep">:</span>
+                                    <span className="taz-clean-pi-val bold-code">{report.id}</span>
                                   </div>
-
-                                  <div className="taz-ref-pi-vdivider"></div>
-
-                                  {/* Right Column */}
-                                  <div className="taz-ref-pi-col">
-                                    <div className="taz-ref-pi-row">
-                                      <div className="taz-ref-pi-icon"><FileText size={13} /></div>
-                                      <div className="taz-ref-pi-name">Report Code</div>
-                                      <div className="taz-ref-pi-colon">:</div>
-                                      <div className="taz-ref-pi-val bold-code">{report.id}</div>
-                                    </div>
-                                    <div className="taz-ref-pi-row">
-                                      <div className="taz-ref-pi-icon"><Calendar size={13} /></div>
-                                      <div className="taz-ref-pi-name">Report Date</div>
-                                      <div className="taz-ref-pi-colon">:</div>
-                                      <div className="taz-ref-pi-val">{formatLabDate(report.date)}</div>
-                                    </div>
-                                    <div className="taz-ref-pi-row">
-                                      <div className="taz-ref-pi-icon"><Stethoscope size={13} /></div>
-                                      <div className="taz-ref-pi-name">Referred By</div>
-                                      <div className="taz-ref-pi-colon">:</div>
-                                      <div className="taz-ref-pi-val">{patient.referredBy || "Dr. Ahmed Khan"}</div>
-                                    </div>
-                                    <div className="taz-ref-pi-row">
-                                      <div className="taz-ref-pi-icon"><Activity size={13} /></div>
-                                      <div className="taz-ref-pi-name">Status</div>
-                                      <div className="taz-ref-pi-colon">:</div>
-                                      <div className="taz-ref-pi-val">
-                                        <span className={`taz-ref-status-badge ${report.status === "Completed" ? "completed" : "pending"}`}>
-                                          {report.status}
-                                        </span>
-                                      </div>
-                                    </div>
+                                  <div className="taz-clean-pi-row">
+                                    <Calendar size={14} className="taz-clean-pi-icon" />
+                                    <span className="taz-clean-pi-label">Report Date</span>
+                                    <span className="taz-clean-pi-sep">:</span>
+                                    <span className="taz-clean-pi-val">{formatLabDate(report.date)}</span>
+                                  </div>
+                                  <div className="taz-clean-pi-row">
+                                    <Stethoscope size={14} className="taz-clean-pi-icon" />
+                                    <span className="taz-clean-pi-label">Referred By</span>
+                                    <span className="taz-clean-pi-sep">:</span>
+                                    <span className="taz-clean-pi-val">{patient.referredBy || report.doctor || "raman"}</span>
+                                  </div>
+                                  <div className="taz-clean-pi-row">
+                                    <Activity size={14} className="taz-clean-pi-icon" />
+                                    <span className="taz-clean-pi-label">Status</span>
+                                    <span className="taz-clean-pi-sep">:</span>
+                                    <span className="taz-clean-pi-val">
+                                      <span className={`taz-clean-status-pill ${String(report.status).toLowerCase() === "completed" ? "completed" : "pending"}`}>
+                                        {report.status || "Completed"}
+                                      </span>
+                                    </span>
                                   </div>
                                 </div>
                               </div>
-
-                              {/* 5. BOTTOM MAROON ACCENT BAR */}
-                              <div className="taz-ref-bottom-accent-bar"></div>
                             </>
                           ) : (
-                            <div className="taz-ref-continuation-header">
-                              <div className="taz-ref-top-bar" style={{ marginBottom: "6px" }}>
-                                <div className="taz-ref-top-left-tab">
-                                  <span className="taz-ref-top-left-title">LAB REPORT</span>
-                                  <span className="taz-ref-top-left-line"></span>
-                                </div>
-                                <div className="taz-ref-top-center-motto">
-                                  ACCURACY &nbsp;|&nbsp; TRUST &nbsp;|&nbsp; CARE
-                                </div>
-                                <div className="taz-ref-top-right-tab">
-                                  <div className="taz-ref-page-pill">
-                                    PAGE {pageNumber} OF {totalPages}
-                                  </div>
+                            <div className="taz-clean-continuation-header">
+                              <div className="taz-clean-top-page">
+                                PAGE {pageNumber} OF {totalPages}
+                              </div>
+                              <div className="taz-clean-patient-heading">
+                                PATIENT INFORMATION (CONTINUATION)
+                              </div>
+                              <div className="taz-clean-patient-card" style={{ padding: "8px 14px", marginTop: "4px" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "11px", color: "#222", flexWrap: "wrap", gap: "10px", width: "100%" }}>
+                                  <div><span style={{ fontWeight: 700 }}>Patient ID:</span> {patient.id}</div>
+                                  <div><span style={{ fontWeight: 700 }}>Patient Name:</span> <strong style={{ color: "#000" }}>{patient.name}</strong></div>
+                                  <div><span style={{ fontWeight: 700 }}>Age/Gender:</span> {patient.age} Yrs / {patient.gender}</div>
+                                  <div><span style={{ fontWeight: 700 }}>Report Code:</span> <strong>{report.id}</strong></div>
+                                  <div><span style={{ fontWeight: 700 }}>Date:</span> {formatLabDate(report.date)}</div>
                                 </div>
                               </div>
-
-                              <div className="taz-ref-patient-card" style={{ padding: "10px 16px 8px 16px", marginTop: "8px" }}>
-                                <div className="taz-ref-patient-tab">
-                                  <FileText size={11} strokeWidth={2.5} />
-                                  <span>CONTINUATION SHEET · TAZ DIAGNOSTIC</span>
-                                </div>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "10.5px", color: "#333", flexWrap: "wrap", gap: "10px" }}>
-                                  <div><span style={{ color: "#670b1e", fontWeight: 700 }}>Patient ID:</span> <strong>{patient.id}</strong></div>
-                                  <div><span style={{ color: "#670b1e", fontWeight: 700 }}>Patient Name:</span> <strong>{patient.name}</strong></div>
-                                  <div><span style={{ color: "#670b1e", fontWeight: 700 }}>Age/Gender:</span> {patient.age} Yrs / {patient.gender}</div>
-                                  <div><span style={{ color: "#670b1e", fontWeight: 700 }}>Report Code:</span> <strong>{report.id}</strong></div>
-                                  <div><span style={{ color: "#670b1e", fontWeight: 700 }}>Date:</span> {formatLabDate(report.date)}</div>
-                                </div>
-                              </div>
-                              <div className="taz-ref-bottom-accent-bar" style={{ marginBottom: "6px" }}></div>
                             </div>
                           )}
 
                           {/* Test Results Table */}
-                          <div className="report-table-wrapper">
-                            <table className="report-clinical-table">
+                          <div className="taz-clean-table-wrap">
+                            <table className="taz-clean-table">
                               <thead>
-                                <tr style={{ borderBottom: "1.5px solid #5b0a1a" }}>
-                                  <th style={{ width: "36%", textAlign: "left" }}>TEST DESCRIPTION</th>
-                                  <th style={{ width: "3%", textAlign: "center" }}></th>
-                                  <th style={{ width: "14%", textAlign: "left" }}>RESULT</th>
-                                  <th style={{ width: "15%", textAlign: "left" }}>UNITS</th>
-                                  <th style={{ width: "32%", textAlign: "left" }}>BIOLOGICAL REFERENCE RANGES</th>
+                                <tr>
+                                  <th style={{ width: "36%" }}>TEST DESCRIPTION</th>
+                                  <th style={{ width: "15%" }}>RESULT</th>
+                                  <th style={{ width: "17%" }}>UNITS</th>
+                                  <th style={{ width: "32%" }}>BIOLOGICAL REFERENCE RANGES</th>
                                 </tr>
                               </thead>
                               <tbody>
                                 {items.length === 0 ? (
                                   <tr>
-                                    <td colSpan={5} style={{ textAlign: "center", padding: "28px", color: "#666", fontSize: "12px", fontStyle: "italic" }}>
+                                    <td colSpan={4} style={{ textAlign: "center", padding: "28px", color: "#666", fontSize: "12px", fontStyle: "italic" }}>
                                       No test parameters assigned to this report yet. Click "+ Add / Manage Tests" above to add tests.
                                     </td>
                                   </tr>
@@ -6110,9 +6112,15 @@ function Reports({ onToast, navigate, route }) {
                                   items.map((item, rowIdx) => {
                                     if (item.type === "category") {
                                       return (
-                                        <tr key={`cat-${item.categoryName}-${rowIdx}`} className="cat-heading-row">
-                                          <td colSpan={5}>
-                                            {formatCategoryHeader(item.categoryName)}
+                                        <tr key={`cat-${item.categoryName}-${rowIdx}`} className="taz-clean-cat-row">
+                                          <td colSpan={4}>
+                                            <div className="taz-clean-cat-divider">
+                                              <span className="taz-clean-cat-line"></span>
+                                              <span className="taz-clean-cat-text">
+                                                {formatCategoryHeader(item.categoryName)}
+                                              </span>
+                                              <span className="taz-clean-cat-line"></span>
+                                            </div>
                                           </td>
                                         </tr>
                                       );
@@ -6122,52 +6130,51 @@ function Reports({ onToast, navigate, route }) {
                                     const result = report.results?.[test.id];
                                     const cfg = CLINICAL_TEST_CONFIG[test.name] || {};
                                     const displayName = cfg.displayName || test.name;
-                                  const method = cfg.method || "";
-                                  const unit = cfg.unit || test.unit || "";
-                                  const refLines = cfg.referenceLines || (test.reference ? String(test.reference).split("\n") : []);
+                                    const method = cfg.method || "";
+                                    const unit = cfg.unit || test.unit || "";
+                                    const refLines = cfg.referenceLines || (test.reference ? String(test.reference).split("\n") : []);
 
-                                  return (
-                                    <tr key={test.id} className="test-data-row">
-                                      <td className="col-desc">
-                                        <div className="test-name-text">{displayName}</div>
-                                        {method && <div className="test-method-text">{method}</div>}
-                                      </td>
-                                      <td className="col-colon">:</td>
-                                      <td className="col-result">
-                                        <span className="result-val-text">
-                                          {result !== undefined && result !== null && String(result).trim() !== "" ? result : "—"}
-                                        </span>
-                                      </td>
-                                      <td className="col-unit">{unit}</td>
-                                      <td className="col-ref">
-                                        {refLines.map((line, lIdx) => (
-                                          <div key={lIdx} className="ref-line">{line}</div>
-                                        ))}
-                                      </td>
-                                    </tr>
-                                  );
-                                }))}
+                                    return (
+                                      <tr key={test.id} className="taz-clean-test-row">
+                                        <td className="taz-col-desc">
+                                          <div className="taz-test-name">{displayName}</div>
+                                          {method && <div className="taz-test-method">{method}</div>}
+                                        </td>
+                                        <td className="taz-col-result">
+                                          <span className="taz-result-colon">:</span>
+                                          <span className="taz-result-val">
+                                            {result !== undefined && result !== null && String(result).trim() !== "" ? result : "—"}
+                                          </span>
+                                        </td>
+                                        <td className="taz-col-unit">{unit}</td>
+                                        <td className="taz-col-ref">
+                                          {refLines.map((line, lIdx) => (
+                                            <div key={lIdx} className="taz-ref-item">{line}</div>
+                                          ))}
+                                        </td>
+                                      </tr>
+                                    );
+                                  })
+                                )}
                               </tbody>
                             </table>
                           </div>
                         </div>
 
                         {/* Bottom Section: Dashed Line + End of Report + Permanent Technician Signature */}
-                        <div className="report-sheet-bottom">
+                        <div className="taz-clean-footer">
                           {isLastPage ? (
                             <>
-                              <div className="report-end-line"></div>
-                              <div className="report-end-text">------- End of the report -------</div>
-                              <div className="report-signature-block">
-                                <div className="sig-container">
-                                  <img
-                                    src={TECHNICIAN_SIGNATURE_SRC}
-                                    alt="Lab Technician Signature"
-                                    className="sig-img"
-                                  />
-                                  <div className="sig-title">Lab Technician</div>
-                                  <div className="sig-center">TAZ DIAGNOSTICS</div>
-                                </div>
+                              <div className="taz-clean-end-text">------- End of the report -------</div>
+                              <div className="taz-clean-sig-block">
+                                <img
+                                  src={TECHNICIAN_SIGNATURE_SRC}
+                                  alt="Lab Technician Signature"
+                                  className="taz-clean-sig-img"
+                                />
+                                <div className="taz-clean-sig-tech">Lab Technician</div>
+                                <div className="taz-clean-sig-lab">TAZ DIAGNOSTICS</div>
+                                <div className="taz-clean-sig-code">Digital #2024 11:33:23 07/TC</div>
                               </div>
                             </>
                           ) : (

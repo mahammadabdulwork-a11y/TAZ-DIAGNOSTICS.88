@@ -52,6 +52,10 @@ import {
   markItemDeleted,
   getSyncStatus,
   onSyncStatusChange,
+  pullAllFromBackend,
+  pushAllToBackend,
+  getCustomApiBase,
+  setCustomApiBase,
 } from "./services/dataSyncService.js";
 
 
@@ -1023,10 +1027,10 @@ const DEFAULT_TESTS = [
   },
   {
     id: "TST066",
-    name: "LFT",
-    category: "Additional Tests",
-    unit: "Various",
-    reference: "Bilirubin: 0.2-1.2, SGOT: 5-40, SGPT: 7-56 U/L",
+    name: "LFT (Liver Function Test)",
+    category: "Bio Chemistry",
+    unit: "Profile",
+    reference: "Complete Liver Function Panel",
     price: 800,
     status: "Active",
   },
@@ -1073,6 +1077,216 @@ const DEFAULT_TESTS = [
     unit: "%",
     reference: "Normal: < 5.7%, Diabetic: ≥ 6.5%",
     price: 500,
+    status: "Active",
+  },
+
+  // ==========================================
+  // Liver Function Test (LFT) — Individual Parameters
+  // ==========================================
+  {
+    id: "TST072",
+    name: "Total Bilirubin",
+    category: "Bio Chemistry",
+    unit: "mg/dl",
+    reference: "0.1 - 1.2 mg/dl",
+    price: 100,
+    status: "Active",
+  },
+  {
+    id: "TST073",
+    name: "Direct Bilirubin",
+    category: "Bio Chemistry",
+    unit: "mg/dl",
+    reference: "Up to 0.3 mg/dl",
+    price: 100,
+    status: "Active",
+  },
+  {
+    id: "TST074",
+    name: "Indirect Bilirubin",
+    category: "Bio Chemistry",
+    unit: "mg/dl",
+    reference: "0.1 - 0.8 mg/dl",
+    price: 100,
+    status: "Active",
+  },
+  {
+    id: "TST075",
+    name: "S G P T",
+    category: "Bio Chemistry",
+    unit: "IU/L",
+    reference: "Male: Up to 45 IU/L\nFemale: Up to 34 IU/L",
+    price: 150,
+    status: "Active",
+  },
+  {
+    id: "TST076",
+    name: "S G O T",
+    category: "Bio Chemistry",
+    unit: "IU/L",
+    reference: "Male : Up to 45 IU/L\nFemale: Up to 37 IU/L",
+    price: 150,
+    status: "Active",
+  },
+  {
+    id: "TST077",
+    name: "Alkaline Phosphatase",
+    category: "Bio Chemistry",
+    unit: "IU/L",
+    reference: "44 - 147 IU/L",
+    price: 150,
+    status: "Active",
+  },
+  {
+    id: "TST078",
+    name: "Total Proteins",
+    category: "Bio Chemistry",
+    unit: "gm/dl",
+    reference: "6.4 - 8.3 gm/dl",
+    price: 120,
+    status: "Active",
+  },
+  {
+    id: "TST079",
+    name: "Serum Albumin",
+    category: "Bio Chemistry",
+    unit: "gm/dl",
+    reference: "3.4 - 5.0 gm/dl",
+    price: 120,
+    status: "Active",
+  },
+  {
+    id: "TST080",
+    name: "Globulin",
+    category: "Bio Chemistry",
+    unit: "gm/dl",
+    reference: "2.5 - 3.5 gm/dl",
+    price: 100,
+    status: "Active",
+  },
+  {
+    id: "TST081",
+    name: "A/G Ratio",
+    category: "Bio Chemistry",
+    unit: "",
+    reference: "1.0 - 2.1",
+    price: 50,
+    status: "Active",
+  },
+
+  // ==========================================
+  // Lipid Profile — Individual Parameters
+  // ==========================================
+  {
+    id: "TST082",
+    name: "Lipid Profile",
+    category: "Bio Chemistry",
+    unit: "Profile",
+    reference: "Complete Lipid Profile Panel",
+    price: 750,
+    status: "Active",
+  },
+  {
+    id: "TST083",
+    name: "Total Cholesterol",
+    category: "Bio Chemistry",
+    unit: "mg/dl",
+    reference: "50 - 200 mg/dl",
+    price: 120,
+    status: "Active",
+  },
+  {
+    id: "TST084",
+    name: "H D L Cholesterol",
+    category: "Bio Chemistry",
+    unit: "mg/dl",
+    reference: "30 - 70 mg/dl",
+    price: 150,
+    status: "Active",
+  },
+  {
+    id: "TST085",
+    name: "Tryglycerides",
+    category: "Bio Chemistry",
+    unit: "mg/dl",
+    reference: "50 - 160 mg/dl",
+    price: 150,
+    status: "Active",
+  },
+  {
+    id: "TST086",
+    name: "L D L Cholesterol",
+    category: "Bio Chemistry",
+    unit: "mg/dl",
+    reference: "30 - 130 mg/dl",
+    price: 150,
+    status: "Active",
+  },
+  {
+    id: "TST087",
+    name: "V L D L Cholesterol",
+    category: "Bio Chemistry",
+    unit: "mg/dl",
+    reference: "Up to 30 mg/dl",
+    price: 120,
+    status: "Active",
+  },
+  {
+    id: "TST088",
+    name: "LDL/HDL",
+    category: "Bio Chemistry",
+    unit: "",
+    reference: "Up to 3.5",
+    price: 50,
+    status: "Active",
+  },
+
+  // ==========================================
+  // Electrolytes — Individual Parameters
+  // ==========================================
+  {
+    id: "TST089",
+    name: "Electrolytes Profile",
+    category: "Bio Chemistry",
+    unit: "Profile",
+    reference: "Sodium, Potassium, Chloride, Calcium",
+    price: 600,
+    status: "Active",
+  },
+  {
+    id: "TST090",
+    name: "Serum Sodium",
+    category: "Bio Chemistry",
+    unit: "mmol/L",
+    reference: "135 - 150 mmol/L",
+    price: 150,
+    status: "Active",
+  },
+  {
+    id: "TST091",
+    name: "Serum Potassium",
+    category: "Bio Chemistry",
+    unit: "mmol/L",
+    reference: "3.5 - 5.0 mmol/L",
+    price: 150,
+    status: "Active",
+  },
+  {
+    id: "TST092",
+    name: "Serum Chloride",
+    category: "Bio Chemistry",
+    unit: "mmol/L",
+    reference: "94 - 110 mmol/L",
+    price: 150,
+    status: "Active",
+  },
+  {
+    id: "TST093",
+    name: "Serum Calcium",
+    category: "Bio Chemistry",
+    unit: "mg/dl",
+    reference: "8.6 - 10.2 mg/dl",
+    price: 150,
     status: "Active",
   },
 ];
@@ -1123,7 +1337,18 @@ function seed(force = false) {
   const existingTests = read(STORAGE.tests, null);
   if (force || !existingTests || !existingTests.length) {
     writeLocal(STORAGE.tests, DEFAULT_TESTS);
-    writeLocal("taz_tests_catalog_v", 4);
+    writeLocal("taz_tests_catalog_v", 6);
+  } else {
+    const currentVersion = Number(read("taz_tests_catalog_v", 0));
+    if (currentVersion < 6) {
+      const existingNames = new Set(existingTests.map((t) => (t?.name || "").toLowerCase().trim()));
+      const toAdd = DEFAULT_TESTS.filter((t) => !existingNames.has((t?.name || "").toLowerCase().trim()));
+      if (toAdd.length > 0) {
+        const merged = [...existingTests, ...toAdd];
+        writeLocal(STORAGE.tests, merged);
+      }
+      writeLocal("taz_tests_catalog_v", 6);
+    }
   }
 
   // Always ensure branches exist
@@ -1315,9 +1540,11 @@ function Layout({
   session,
   children,
   logout,
+  onToast,
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [syncStatus, setSyncStatus] = useState(() => getSyncStatus());
+  const [showSyncModal, setShowSyncModal] = useState(false);
 
   useEffect(() => {
     const unsub = onSyncStatusChange((status) => {
@@ -1435,6 +1662,7 @@ function Layout({
 
           <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
             <div
+              onClick={() => setShowSyncModal(true)}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -1446,9 +1674,10 @@ function Layout({
                 backgroundColor: syncStatus.isConnected ? "#ECFDF5" : "#FEF3C7",
                 color: syncStatus.isConnected ? "#065F46" : "#92400E",
                 border: `1px solid ${syncStatus.isConnected ? "#A7F3D0" : "#FDE68A"}`,
-                boxShadow: "0 1px 2px rgba(0,0,0,0.04)"
+                boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+                cursor: "pointer",
               }}
-              title={syncStatus.isConnected ? "Central Database Connected — Real-time Multi-PC Sync Active" : "Connecting to Central Server..."}
+              title="Click to configure Multi-PC & Mobile Central Sync"
             >
               <span
                 style={{
@@ -1476,6 +1705,138 @@ function Layout({
 
         <section className="content">{children}</section>
       </main>
+
+      {showSyncModal && (
+        <SyncConfigModal
+          syncStatus={syncStatus}
+          onClose={() => setShowSyncModal(false)}
+          onToast={onToast}
+        />
+      )}
+    </div>
+  );
+}
+
+function SyncConfigModal({ syncStatus, onClose, onToast }) {
+  const [customUrl, setCustomUrl] = useState(() => getCustomApiBase());
+  const [isTesting, setIsTesting] = useState(false);
+
+  const handleSave = async (url) => {
+    setCustomApiBase(url);
+    setIsTesting(true);
+    try {
+      await pullAllFromBackend(true);
+      await pushAllToBackend();
+      onToast?.("Central Server synced successfully!");
+    } catch (e) {
+      onToast?.("Could not reach server: " + e.message);
+    } finally {
+      setIsTesting(false);
+    }
+  };
+
+  const setPreset = (url) => {
+    setCustomUrl(url);
+    handleSave(url);
+  };
+
+  return (
+    <div className="modalshade" style={{ zIndex: 1000 }}>
+      <div className="modal" style={{ maxWidth: "520px" }}>
+        <div className="modalhead">
+          <h3 style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <Activity size={18} color="#0e5a3a" /> Multi-PC & Mobile Central Sync
+          </h3>
+          <button type="button" className="close" onClick={onClose}>×</button>
+        </div>
+
+        <div style={{ padding: "16px 0", fontSize: "13px", lineHeight: "1.6", color: "#374151" }}>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            padding: "10px 14px",
+            borderRadius: "8px",
+            backgroundColor: syncStatus.isConnected ? "#ECFDF5" : "#FEF3C7",
+            border: `1px solid ${syncStatus.isConnected ? "#A7F3D0" : "#FDE68A"}`,
+            marginBottom: "16px"
+          }}>
+            <span style={{
+              width: "10px",
+              height: "10px",
+              borderRadius: "50%",
+              backgroundColor: syncStatus.isConnected ? "#10B981" : "#F59E0B"
+            }} />
+            <div>
+              <strong>Status: {syncStatus.isConnected ? "🟢 Connected to Central Server" : "🟡 Disconnected / Local Mode"}</strong>
+              <div style={{ fontSize: "11px", color: "#6B7280" }}>
+                Active Server: <code>{syncStatus.apiBase || "None"}</code>
+              </div>
+            </div>
+          </div>
+
+          <label style={{ fontWeight: "700", display: "block", marginBottom: "6px" }}>
+            Central Server URL / Endpoint:
+          </label>
+          <input
+            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", border: "1px solid #D1D5DB", marginBottom: "10px" }}
+            value={customUrl}
+            placeholder="e.g. http://192.168.31.166:5000/api or https://taz-diagnostics.onrender.com/api"
+            onChange={(e) => setCustomUrl(e.target.value)}
+          />
+
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
+            <button
+              type="button"
+              className="role-chip"
+              onClick={() => setPreset("http://192.168.31.166:5000/api")}
+              title="Connect all PCs on clinic Wi-Fi to this computer"
+            >
+              🏢 Clinic Wi-Fi (192.168.31.166)
+            </button>
+            <button
+              type="button"
+              className="role-chip"
+              onClick={() => setPreset("https://taz-diagnostics.onrender.com/api")}
+              title="Connect 24/7 via cloud backend"
+            >
+              ☁️ Cloud Backend (Render)
+            </button>
+            <button
+              type="button"
+              className="role-chip"
+              onClick={() => { setCustomUrl(""); handleSave(""); }}
+              title="Auto-detect based on current hostname"
+            >
+              🔄 Auto-Detect
+            </button>
+          </div>
+
+          <p style={{ fontSize: "12px", color: "#6B7280", margin: "0 0 16px" }}>
+            💡 <b>How Multi-PC works:</b> Run the central server on your main clinic PC (<code>npm run server</code> or port 5000). All other lab computers and mobile phones on the clinic Wi-Fi or public link will immediately synchronize patients, reports, and bills in real-time.
+          </p>
+
+          <div className="formactions" style={{ justifyContent: "space-between" }}>
+            <Button onClick={async () => {
+              setIsTesting(true);
+              try {
+                await pullAllFromBackend(true);
+                await pushAllToBackend();
+                onToast?.("Sync complete: all data synchronized with server!");
+              } catch (e) {
+                onToast?.("Sync failed: " + e.message);
+              } finally {
+                setIsTesting(false);
+              }
+            }} disabled={isTesting}>
+              {isTesting ? "Syncing..." : "🔄 Sync All Data Now"}
+            </Button>
+            <Button primary onClick={() => { handleSave(customUrl); onClose(); }}>
+              Save & Connect
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1909,6 +2270,224 @@ function Dashboard({ navigate, onToast }) {
           ))}
         </div>
       </div>
+
+      {/* =========================================================
+         PATIENTS DAY TO DAY (Daily Patient Registry & Test Results)
+         ========================================================= */}
+      <PatientsDayToDay patients={patients} reports={reports} navigate={navigate} />
+    </div>
+  );
+}
+
+function PatientsDayToDay({ patients, reports, navigate }) {
+  const groupsByDate = useMemo(() => {
+    const map = {};
+    (patients || []).forEach((p) => {
+      const d = p.date || p.createdAt?.slice(0, 10) || today();
+      if (!map[d]) map[d] = [];
+      map[d].push(p);
+    });
+    const sortedDates = Object.keys(map).sort((a, b) => (a < b ? 1 : -1));
+    return sortedDates.map((dateStr) => ({
+      date: dateStr,
+      list: map[dateStr],
+    }));
+  }, [patients]);
+
+  const [expandedDate, setExpandedDate] = useState(() => {
+    return groupsByDate[0]?.date || today();
+  });
+
+  const formatLongDate = (dStr) => {
+    if (!dStr) return "Today";
+    try {
+      const [y, m, d] = dStr.split("-");
+      const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      const monName = months[parseInt(m, 10) - 1] || m;
+      return `${parseInt(d, 10)} ${monName} ${y}`;
+    } catch {
+      return dStr;
+    }
+  };
+
+  return (
+    <div className="card" style={{ marginTop: "24px" }}>
+      <div className="cardhead" style={{ marginBottom: "16px" }}>
+        <div>
+          <h3 style={{ display: "flex", alignItems: "center", gap: "8px", color: "#111827", fontSize: "16px", fontWeight: "700" }}>
+            <Calendar size={18} color="#0e5a3a" /> Patients Day to Day
+          </h3>
+          <p style={{ margin: "3px 0 0", color: "#6B7280", fontSize: "13px" }}>
+            Daily breakdown of patient entries and clinical results. Click any date to view all patients registered on that day, or click any patient to open their reports & test results.
+          </p>
+        </div>
+        <span
+          style={{
+            backgroundColor: "#ECFDF5",
+            color: "#065F46",
+            fontSize: "12px",
+            fontWeight: "700",
+            padding: "4px 12px",
+            borderRadius: "16px",
+            border: "1px solid #A7F3D0",
+          }}
+        >
+          {patients.length} Total Patients
+        </span>
+      </div>
+
+      {groupsByDate.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "32px", color: "#6B7280" }}>
+          <User size={36} color="#9CA3AF" style={{ margin: "0 auto 8px" }} />
+          <div style={{ fontWeight: 600, color: "#111827", fontSize: "14px" }}>No daily patient entries recorded yet</div>
+          <p style={{ fontSize: "12px", margin: "4px 0 12px" }}>Register a patient to begin tracking day-to-day admissions.</p>
+          <Button primary onClick={() => navigate("/patients/new")}>
+            <Plus size={14} /> New Patient Entry
+          </Button>
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          {groupsByDate.map(({ date, list }) => {
+            const isExpanded = expandedDate === date;
+            const isToday = date === today();
+
+            return (
+              <div
+                key={date}
+                style={{
+                  border: isExpanded ? "1.5px solid #0e5a3a" : "1px solid #E5E7EB",
+                  borderRadius: "10px",
+                  overflow: "hidden",
+                  backgroundColor: "#FFFFFF",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                <div
+                  onClick={() => setExpandedDate(isExpanded ? null : date)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "12px 18px",
+                    cursor: "pointer",
+                    backgroundColor: isExpanded ? "#F0FDF4" : "#F9FAFB",
+                    userSelect: "none",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    <Calendar size={16} color={isExpanded ? "#0e5a3a" : "#6B7280"} />
+                    <div>
+                      <strong style={{ fontSize: "14px", color: isExpanded ? "#0e5a3a" : "#111827" }}>
+                        {formatLongDate(date)}
+                      </strong>
+                      {isToday && (
+                        <span
+                          style={{
+                            marginLeft: "8px",
+                            fontSize: "10.5px",
+                            fontWeight: "800",
+                            backgroundColor: "#0e5a3a",
+                            color: "#FFFFFF",
+                            padding: "2px 7px",
+                            borderRadius: "10px",
+                            letterSpacing: "0.4px",
+                          }}
+                        >
+                          TODAY
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                    <span
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: "700",
+                        color: "#374151",
+                        backgroundColor: "#FFFFFF",
+                        padding: "3px 10px",
+                        borderRadius: "12px",
+                        border: "1px solid #D1D5DB",
+                      }}
+                    >
+                      {list.length} Patient{list.length === 1 ? "" : "s"}
+                    </span>
+                    <span style={{ fontSize: "12px", color: "#6B7280" }}>
+                      {isExpanded ? "▲" : "▼"}
+                    </span>
+                  </div>
+                </div>
+
+                {isExpanded && (
+                  <div style={{ padding: "0 14px 14px" }}>
+                    <div className="tablewrap" style={{ marginTop: "10px" }}>
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Patient ID</th>
+                            <th>Patient Name</th>
+                            <th>Age / Gender</th>
+                            <th>Phone</th>
+                            <th>Referred Doctor</th>
+                            <th>Status / Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {list.map((patient) => {
+                            const patReport = reports.find((r) => r.patientId === patient.id);
+                            const isCompleted = patReport?.status === "Completed";
+
+                            return (
+                              <tr
+                                key={patient.id}
+                                style={{ cursor: "pointer" }}
+                                onClick={() => navigate(`/reports?patient=${patient.id}`)}
+                                title="Click to view complete lab report and results"
+                              >
+                                <td>
+                                  <span style={{ fontFamily: "monospace", fontWeight: "700", color: "#0e5a3a" }}>
+                                    {patient.id}
+                                  </span>
+                                </td>
+                                <td>
+                                  <b style={{ color: "#111827" }}>{patient.name}</b>
+                                </td>
+                                <td>
+                                  {patient.age ? `${patient.age} Yrs` : "—"} / {patient.gender || "—"}
+                                </td>
+                                <td>{patient.phone || "—"}</td>
+                                <td>{patient.referredBy || "Self"}</td>
+                                <td className="actions" onClick={(e) => e.stopPropagation()}>
+                                  <button
+                                    className={`badge ${isCompleted ? "completed" : "pending"}`}
+                                    style={{
+                                      fontSize: "11px",
+                                      fontWeight: "700",
+                                      padding: "4px 10px",
+                                      borderRadius: "14px",
+                                      border: "none",
+                                      cursor: "pointer",
+                                    }}
+                                    onClick={() => navigate(`/reports?patient=${patient.id}`)}
+                                  >
+                                    <FileText size={12} style={{ marginRight: "4px", verticalAlign: "middle" }} />
+                                    {isCompleted ? "View Report" : "Enter Results"}
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -4673,6 +5252,10 @@ const CLINICAL_CATEGORY_HEADERS = {
   "Semen Analysis": "SEMEN ANALYSIS REPORT",
   "Additional Tests": "SPECIAL INVESTIGATION REPORT",
   "Special Investigations": "SPECIAL INVESTIGATION REPORT",
+  "Liver Function Test": "LIVER FUNCTION TEST REPORT",
+  "LFT": "LIVER FUNCTION TEST REPORT",
+  "Lipid Profile": "LIPID PROFILE REPORT",
+  "Electrolytes": "ELECTROLYTES REPORT",
 };
 
 function formatCategoryHeader(categoryName) {
@@ -4913,6 +5496,168 @@ const CLINICAL_TEST_CONFIG = {
     method: "",
     unit: "%",
     referenceLines: ["Normal: < 5.7%, Diabetic: ≥ 6.5%"],
+  },
+
+  // LIVER FUNCTION TEST
+  "Total Bilirubin": {
+    displayName: "Total Bilirubin",
+    method: "",
+    unit: "mg/dl",
+    referenceLines: ["0.1 - 1.2 mg/dl"],
+  },
+  "Direct Bilirubin": {
+    displayName: "Direct Bilirubin",
+    method: "",
+    unit: "mg/dl",
+    referenceLines: ["Up to 0.3 mg/dl"],
+  },
+  "Indirect Bilirubin": {
+    displayName: "Indirect Bilirubin",
+    method: "",
+    unit: "mg/dl",
+    referenceLines: ["0.1 - 0.8 mg/dl"],
+  },
+  "S G P T": {
+    displayName: "S G P T",
+    method: "",
+    unit: "IU/L",
+    referenceLines: ["Male: Up to 45 IU/L", "Female: Up to 34 IU/L"],
+  },
+  "SGPT": {
+    displayName: "S G P T",
+    method: "",
+    unit: "IU/L",
+    referenceLines: ["Male: Up to 45 IU/L", "Female: Up to 34 IU/L"],
+  },
+  "S G O T": {
+    displayName: "S G O T",
+    method: "",
+    unit: "IU/L",
+    referenceLines: ["Male : Up to 45 IU/L", "Female: Up to 37 IU/L"],
+  },
+  "SGOT": {
+    displayName: "S G O T",
+    method: "",
+    unit: "IU/L",
+    referenceLines: ["Male : Up to 45 IU/L", "Female: Up to 37 IU/L"],
+  },
+  "Alkaline Phosphatase": {
+    displayName: "Alkaline Phosphatase",
+    method: "",
+    unit: "IU/L",
+    referenceLines: ["44 - 147 IU/L"],
+  },
+  "Total Proteins": {
+    displayName: "Total Proteins",
+    method: "",
+    unit: "gm/dl",
+    referenceLines: ["6.4 - 8.3 gm/dl"],
+  },
+  "Serum Albumin": {
+    displayName: "Serum Albumin",
+    method: "",
+    unit: "gm/dl",
+    referenceLines: ["3.4 - 5.0 gm/dl"],
+  },
+  "Globulin": {
+    displayName: "Globulin",
+    method: "",
+    unit: "gm/dl",
+    referenceLines: ["2.5 - 3.5 gm/dl"],
+  },
+  "A/G Ratio": {
+    displayName: "A/G Ratio",
+    method: "",
+    unit: "",
+    referenceLines: ["1.0 - 2.1"],
+  },
+
+  // LIPID PROFILE
+  "Total Cholesterol": {
+    displayName: "Total Cholesterol",
+    method: "",
+    unit: "mg/dl",
+    referenceLines: ["50 - 200 mg/dl"],
+  },
+  "H D L Cholesterol": {
+    displayName: "H D L Cholesterol",
+    method: "",
+    unit: "mg/dl",
+    referenceLines: ["30 - 70 mg/dl"],
+  },
+  "HDL Cholesterol": {
+    displayName: "H D L Cholesterol",
+    method: "",
+    unit: "mg/dl",
+    referenceLines: ["30 - 70 mg/dl"],
+  },
+  "Tryglycerides": {
+    displayName: "Tryglycerides",
+    method: "",
+    unit: "mg/dl",
+    referenceLines: ["50 - 160 mg/dl"],
+  },
+  "Triglycerides": {
+    displayName: "Tryglycerides",
+    method: "",
+    unit: "mg/dl",
+    referenceLines: ["50 - 160 mg/dl"],
+  },
+  "L D L Cholesterol": {
+    displayName: "L D L Cholesterol",
+    method: "",
+    unit: "mg/dl",
+    referenceLines: ["30 - 130 mg/dl"],
+  },
+  "LDL Cholesterol": {
+    displayName: "L D L Cholesterol",
+    method: "",
+    unit: "mg/dl",
+    referenceLines: ["30 - 130 mg/dl"],
+  },
+  "V L D L Cholesterol": {
+    displayName: "V L D L Cholesterol",
+    method: "",
+    unit: "mg/dl",
+    referenceLines: ["Up to 30 mg/dl"],
+  },
+  "VLDL Cholesterol": {
+    displayName: "V L D L Cholesterol",
+    method: "",
+    unit: "mg/dl",
+    referenceLines: ["Up to 30 mg/dl"],
+  },
+  "LDL/HDL": {
+    displayName: "LDL/HDL",
+    method: "",
+    unit: "",
+    referenceLines: ["Up to 3.5"],
+  },
+
+  // ELECTROLYTES
+  "Serum Sodium": {
+    displayName: "Serum Sodium",
+    method: "( Method: ISE Indirect )",
+    unit: "mmol/L",
+    referenceLines: ["135 - 150 mmol/L"],
+  },
+  "Serum Potassium": {
+    displayName: "Serum Potassium",
+    method: "( Method: ISE Indirect )",
+    unit: "mmol/L",
+    referenceLines: ["3.5 - 5.0 mmol/L"],
+  },
+  "Serum Chloride": {
+    displayName: "Serum Chloride",
+    method: "( Method: ISE Indirect )",
+    unit: "mmol/L",
+    referenceLines: ["94 - 110 mmol/L"],
+  },
+  "Serum Calcium": {
+    displayName: "Serum Calcium",
+    method: "( Method: Arsenazo-111 )",
+    unit: "mg/dl",
+    referenceLines: ["8.6 - 10.2 mg/dl"],
   },
 };
 
@@ -5735,6 +6480,17 @@ function Reports({ onToast, navigate, route }) {
                             onChange={(e) =>
                               updateResult(test.id, e.target.value)
                             }
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                const inputs = Array.from(document.querySelectorAll(".resulttable input"));
+                                const idx = inputs.indexOf(e.target);
+                                if (idx > -1 && idx + 1 < inputs.length) {
+                                  inputs[idx + 1].focus();
+                                  inputs[idx + 1].select?.();
+                                }
+                              }
+                            }}
                           />
                         </td>
                         <td>{test.unit}</td>
@@ -6095,10 +6851,10 @@ function Reports({ onToast, navigate, route }) {
                             <table className="taz-clean-table">
                               <thead>
                                 <tr>
-                                  <th style={{ width: "36%" }}>TEST DESCRIPTION</th>
-                                  <th style={{ width: "15%" }}>RESULT</th>
-                                  <th style={{ width: "17%" }}>UNITS</th>
-                                  <th style={{ width: "32%" }}>BIOLOGICAL REFERENCE RANGES</th>
+                                  <th style={{ width: "32%", textAlign: "left" }}>TEST DESCRIPTION</th>
+                                  <th style={{ width: "18%", textAlign: "left" }}>RESULT</th>
+                                  <th style={{ width: "18%", textAlign: "left" }}>UNITS</th>
+                                  <th style={{ width: "32%", textAlign: "left" }}>BIOLOGICAL REFERENCE RANGES</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -8071,6 +8827,7 @@ export default function App() {
         navigate={navigate}
         session={session}
         logout={logout}
+        onToast={showToast}
       >
         {page}
       </Layout>

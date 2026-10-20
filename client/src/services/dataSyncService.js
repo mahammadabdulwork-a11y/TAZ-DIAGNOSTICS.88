@@ -45,8 +45,30 @@ export function markItemDeleted(collection, id) {
   } catch {}
 }
 
+export function getCustomApiBase() {
+  try {
+    return localStorage.getItem("taz_company_custom_api_base") || "";
+  } catch {
+    return "";
+  }
+}
+
+export function setCustomApiBase(url) {
+  try {
+    if (url && url.trim()) {
+      localStorage.setItem("taz_company_custom_api_base", url.trim().replace(/\/$/, ""));
+    } else {
+      localStorage.removeItem("taz_company_custom_api_base");
+    }
+  } catch {}
+  notifySyncListeners();
+}
+
 // Detect API base dynamically: works on Vercel, localhost, or LAN IP
 function getApiBase() {
+  const custom = getCustomApiBase();
+  if (custom) return custom.replace(/\/$/, "");
+
   const envApi = import.meta.env?.VITE_API_BASE;
   if (envApi) return envApi.replace(/\/$/, "");
 

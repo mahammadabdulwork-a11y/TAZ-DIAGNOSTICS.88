@@ -64,38 +64,21 @@ export function setCustomApiBase(url) {
   notifySyncListeners();
 }
 
-// Detect API base dynamically: works on Vercel, localhost, or LAN IP
+// Detect API base dynamically: relative /api works universally via Vite proxy or direct Express server
 export function getApiBase() {
   const custom = getCustomApiBase();
-  if (custom) return custom.replace(/\/$/, "");
+  if (custom && !custom.includes("taz-diagnostics.onrender.com")) {
+    return custom.replace(/\/$/, "");
+  }
 
   const envApi = import.meta.env?.VITE_API_BASE;
   if (envApi) return envApi.replace(/\/$/, "");
 
-  const hostname = window.location.hostname || "localhost";
-  const port = window.location.port;
-
-  // If running with Vite dev server (on any IP/mobile/PC) or port 3000
-  if (port === "5173" || port === "3000") {
-    return "/api";
-  }
-
-  // If served directly from server port 5000
-  if (port === "5000") {
-    return "/api";
-  }
-
-  // If running on local network (e.g. mobile connected to PC IP)
-  if (hostname.startsWith("192.168.") || hostname.startsWith("10.") || hostname.startsWith("172.")) {
-    return `http://${hostname}:5000/api`;
-  }
-
-  // Default to relative /api
   return "/api";
 }
 
 let currentDataVersion = 0;
-let isConnectedToServer = false;
+let isConnectedToServer = true;
 let syncListeners = [];
 
 export function getSyncStatus() {
@@ -147,62 +130,9 @@ export async function fetchNetworkInfo() {
 }
 
 /**
- * Merge local collection with remote collection without data loss.
- * Respects explicitly deleted items and retains local additions not yet synced to remote.
- * Compares timestamps so newest edit (from Mobile or PC) always wins!
- */
-function mergeCollectionWithRemote(colKey, localList, remoteList, deletedIds = []) {
-  if (!Array.isArray(remoteList)) return { merged: localList, missingInRemote: [] };
-  if (!Array.isArray(localList) || localList.length === 0) {
-    // Filter out locally deleted IDs from remote
-    const filteredRemote = remoteList.filter((item) => {
-      const id = String(item?.id || item?.code || "");
-      return !deletedIds.includes(id);
-    });
-    return { merged: filteredRemote, missingInRemote: [] };
-  }
-
-  const remoteMap = new Map();
-  const deletedSet = new Set(deletedIds.map(String));
-
-  remoteList.forEach((item) => {
-    if (!item) return;
-    const id = String(item.id || item.code || "");
-    if (id && !deletedSet.has(id)) {
-      remoteMap.set(id, item);
-    }
-  });
-
-  const missingInRemote = [];
-
-  // Look for any item that exists locally and reconcile with remote
-  localList.forEach((item) => {
-    if (!item) return;
-    const id = String(item.id || item.code || "");
-    if (!id || deletedSet.has(id)) return;
-
-    if (!remoteMap.has(id)) {
-      remoteMap.set(id, item);
-      missingInRemote.push(item);
-    } else {
-      // Reconcile if both exist: newest updatedAt or date wins!
-      const remoteItem = remoteMap.get(id);
-      const localTime = new Date(item.updatedAt || item.date || item.createdAt || 0).getTime();
-      const remoteTime = new Date(remoteItem.updatedAt || remoteItem.date || remoteItem.createdAt || 0).getTime();
-
-      if (localTime > remoteTime) {
-        remoteMap.set(id, item);
-        missingInRemote.push(item);
-      }
-    }
-  });
-
-  const merged = Array.from(remoteMap.values());
-  return { merged, missingInRemote };
-}
-
-/**
- * Fetch all collections from central server and update localStorage
+ * Fetch all collections from central server and update localStorage.
+ * The central server is authoritative so additions, deletions,
+ * and updates from both Mobile and PC stay 100% in sync.
  */
 export async function pullAllFromBackend(force = false) {
   try {
@@ -220,7 +150,6 @@ export async function pullAllFromBackend(force = false) {
       currentDataVersion = result.version || Date.now();
 
       const serverData = result.data;
-      const deletedMap = getDeletedIdsMap();
       let hasChanges = false;
       const collectionsToPush = [];
 
@@ -234,32 +163,20 @@ export async function pullAllFromBackend(force = false) {
             currentLocal = null;
           }
 
-          if (Array.isArray(serverData[colKey])) {
-            const deletedForCol = deletedMap[colKey] || [];
-            const { merged, missingInRemote } = mergeCollectionWithRemote(
-              colKey,
-              currentLocal,
-              serverData[colKey],
-              deletedForCol
+          // If server is empty on first boot but local has data, push local up
+          if (Array.isArray(serverData[colKey]) && serverData[colKey].length === 0 && Array.isArray(currentLocal) && currentLocal.length > 0) {
+            collectionsToPush.push({ storageKey, data: currentLocal });
+            return;
+          }
+
+          // Adopt server collection directly so additions and deletions sync perfectly
+          const serverStr = JSON.stringify(serverData[colKey]);
+          if (currentLocalRaw !== serverStr) {
+            localStorage.setItem(storageKey, serverStr);
+            hasChanges = true;
+            window.dispatchEvent(
+              new CustomEvent("taz-company-update", { detail: { key: storageKey, value: serverData[colKey] } })
             );
-
-            const mergedStr = JSON.stringify(merged);
-            if (currentLocalRaw !== mergedStr) {
-              localStorage.setItem(storageKey, mergedStr);
-              hasChanges = true;
-            }
-
-            // If local had unsynced records, queue for server upload
-            if (missingInRemote.length > 0) {
-              collectionsToPush.push({ storageKey, data: merged });
-            }
-          } else {
-            // Object data like settings
-            const serverStr = JSON.stringify(serverData[colKey]);
-            if (currentLocalRaw !== serverStr) {
-              localStorage.setItem(storageKey, serverStr);
-              hasChanges = true;
-            }
           }
         }
       });
@@ -270,7 +187,6 @@ export async function pullAllFromBackend(force = false) {
         );
       }
 
-      // Sync any missing local items back to server
       if (collectionsToPush.length > 0) {
         for (const item of collectionsToPush) {
           syncCollectionToBackend(item.storageKey, item.data).catch(() => {});
@@ -278,6 +194,7 @@ export async function pullAllFromBackend(force = false) {
       }
 
       notifySyncListeners();
+      return true;
     }
   } catch (err) {
     if (isConnectedToServer) {
@@ -285,6 +202,7 @@ export async function pullAllFromBackend(force = false) {
       notifySyncListeners();
     }
   }
+  return false;
 }
 
 /**
@@ -388,7 +306,15 @@ export async function deleteItemFromBackend(storageKey, id) {
  */
 let syncIntervalTimer = null;
 
-export function startLiveSync(pollIntervalMs = 2500) {
+export function startLiveSync(pollIntervalMs = 1500) {
+  // Clear any stale custom API base
+  try {
+    const saved = localStorage.getItem("taz_company_custom_api_base");
+    if (saved && (saved.includes("taz-diagnostics.onrender.com") || saved.includes("localhost:5000") || saved.includes(":5000/api"))) {
+      localStorage.removeItem("taz_company_custom_api_base");
+    }
+  } catch {}
+
   // Initial immediate fetch
   pullAllFromBackend();
 
@@ -407,8 +333,9 @@ export function startLiveSync(pollIntervalMs = 2500) {
         const data = await res.json();
         isConnectedToServer = true;
 
-        // If another PC modified data, pull the latest bundle!
+        // If another device modified data, pull the latest bundle!
         if (data.version && data.version !== currentDataVersion) {
+          currentDataVersion = data.version;
           await pullAllFromBackend(true);
         } else {
           notifySyncListeners();

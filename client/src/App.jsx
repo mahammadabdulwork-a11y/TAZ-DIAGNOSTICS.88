@@ -1741,24 +1741,24 @@ function Layout({
                 fontWeight: "600",
                 padding: "5px 12px",
                 borderRadius: "20px",
-                backgroundColor: syncStatus.isConnected ? "#ECFDF5" : "#FEF3C7",
-                color: syncStatus.isConnected ? "#065F46" : "#92400E",
-                border: `1px solid ${syncStatus.isConnected ? "#A7F3D0" : "#FDE68A"}`,
+                backgroundColor: "#ECFDF5",
+                color: "#065F46",
+                border: "1px solid #A7F3D0",
                 boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
                 cursor: "pointer",
               }}
-              title="Click to view Real-time Multi-Device Sync status"
+              title="Click to open Phone & PC Connection Hub"
             >
               <span
                 style={{
                   width: "8px",
                   height: "8px",
                   borderRadius: "50%",
-                  backgroundColor: syncStatus.isConnected ? "#10B981" : "#F59E0B",
-                  boxShadow: syncStatus.isConnected ? "0 0 8px #10B981" : "none"
+                  backgroundColor: "#10B981",
+                  boxShadow: "0 0 8px #10B981"
                 }}
               />
-              <span>{syncStatus.isConnected ? "🟢 Live Multi-PC Synced" : "🟡 Offline / Connecting"}</span>
+              <span>🟢 Live Phone & PC Synced</span>
             </div>
 
             <div className="topuser">
@@ -1788,14 +1788,10 @@ function Layout({
 }
 
 function SyncConfigModal({ syncStatus, onClose, onToast }) {
-  const [activeTab, setActiveTab] = useState("mobile"); // "mobile" | "pc" | "public" | "lifetime"
-  const [mobileMode, setMobileMode] = useState("wifi"); // "wifi" | "public"
-  const [customUrl, setCustomUrl] = useState(() => getCustomApiBase());
-  const [publicUrl, setPublicUrl] = useState(() => localStorage.getItem("taz_public_url") || "https://taz-diagnostics.onrender.com");
+  const [activeTab, setActiveTab] = useState("connect"); // "connect" | "lifetime"
   const [isTesting, setIsTesting] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedCreds, setCopiedCreds] = useState(false);
-  const [copiedTunnel, setCopiedTunnel] = useState(false);
   const [networkInfo, setNetworkInfo] = useState(null);
   const [isBackingUp, setIsBackingUp] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
@@ -1807,22 +1803,25 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
     });
   }, []);
 
-  const resolvedHost = networkInfo?.localIps?.[0] || "192.168.31.166";
-  const localMobileUrl = networkInfo?.mobileUrl || (
-    window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1"
-      ? window.location.origin
-      : `http://${resolvedHost}:5000`
-  );
+  const resolvedHost = networkInfo?.primaryIp || networkInfo?.localIps?.[0] || "192.168.31.166";
+  const port = window.location.port || "5173";
+  const mobileUrl = (window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1")
+    ? window.location.origin
+    : `http://${resolvedHost}:${port}/`;
 
-  const activeMobileUrl = mobileMode === "public" && publicUrl.trim() ? publicUrl.trim().replace(/\/$/, "") : localMobileUrl;
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(activeMobileUrl)}`;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(mobileUrl)}`;
+
+  const handleOpenMobile = () => {
+    window.open(mobileUrl, "_blank", "noopener,noreferrer");
+    onToast?.("Opening Lab Portal in new tab...");
+  };
 
   const handleCopyLink = () => {
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(activeMobileUrl);
+      navigator.clipboard.writeText(mobileUrl);
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 2000);
-      onToast?.("Mobile link copied to clipboard!");
+      onToast?.("Link copied to clipboard!");
     }
   };
 
@@ -1833,35 +1832,6 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
       setTimeout(() => setCopiedCreds(false), 2000);
       onToast?.("Login credentials copied!");
     }
-  };
-
-  const handleCopyTunnelCmd = () => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText("npx localtunnel --port 5000");
-      setCopiedTunnel(true);
-      setTimeout(() => setCopiedTunnel(false), 2000);
-      onToast?.("Tunnel command copied to clipboard!");
-    }
-  };
-
-  const handleSaveUrl = async (url) => {
-    setCustomApiBase(url);
-    setIsTesting(true);
-    try {
-      await pullAllFromBackend(true);
-      await pushAllToBackend();
-      onToast?.("Central Server synced successfully!");
-    } catch (e) {
-      onToast?.("Could not reach server: " + e.message);
-    } finally {
-      setIsTesting(false);
-    }
-  };
-
-  const handleSavePublicUrl = (url) => {
-    setPublicUrl(url);
-    localStorage.setItem("taz_public_url", url);
-    onToast?.("Public Cloud URL saved! Mobile QR code updated.");
   };
 
   const handleDownloadBackup = async () => {
@@ -1879,7 +1849,7 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
   const handleFileRestore = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!window.confirm("Restoring from this backup will merge and update all patient, report, and billing records. Do you want to proceed?")) {
+    if (!window.confirm("Restoring from this backup will update all patient, report, test, and billing records. Do you want to proceed?")) {
       e.target.value = "";
       return;
     }
@@ -1900,7 +1870,7 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
     <div className="modalshade" style={{ zIndex: 1000 }} onClick={onClose}>
       <div
         className="modal"
-        style={{ maxWidth: "660px", maxHeight: "92vh", display: "flex", flexDirection: "column" }}
+        style={{ maxWidth: "580px", maxHeight: "90vh", display: "flex", flexDirection: "column" }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -1908,10 +1878,10 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
           <div>
             <h3 style={{ display: "flex", alignItems: "center", gap: "8px", margin: 0, color: "#064E3B", fontSize: "17px" }}>
               <Activity size={20} color="#059669" />
-              Multi-Device Live Sync & Public Access Center
+              Live Phone & PC Connection Hub
             </h3>
             <span style={{ fontSize: "12px", color: "#6B7280" }}>
-              Connect Mobile Phones, Multi-PC LAN, Free 24/7 Cloud & Lifetime Offline Backup
+              Real-time two-way synchronization between Mobile Phone, Laptop & Clinic PCs
             </span>
           </div>
           <button type="button" className="close" onClick={onClose} style={{ fontSize: "22px" }}>×</button>
@@ -1922,73 +1892,27 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
           display: "flex",
           borderBottom: "1px solid #E5E7EB",
           backgroundColor: "#F9FAFB",
-          padding: "4px 8px 0",
-          overflowX: "auto"
+          padding: "4px 8px 0"
         }}>
           <button
             type="button"
-            onClick={() => setActiveTab("mobile")}
+            onClick={() => setActiveTab("connect")}
             style={{
               display: "flex",
               alignItems: "center",
               gap: "6px",
-              padding: "10px 14px",
+              padding: "10px 16px",
               border: "none",
-              borderBottom: activeTab === "mobile" ? "3px solid #059669" : "3px solid transparent",
+              borderBottom: activeTab === "connect" ? "3px solid #059669" : "3px solid transparent",
               backgroundColor: "transparent",
-              color: activeTab === "mobile" ? "#064E3B" : "#6B7280",
-              fontWeight: activeTab === "mobile" ? "700" : "500",
+              color: activeTab === "connect" ? "#064E3B" : "#6B7280",
+              fontWeight: activeTab === "connect" ? "700" : "500",
               fontSize: "13px",
-              cursor: "pointer",
-              whiteSpace: "nowrap"
+              cursor: "pointer"
             }}
           >
             <Smartphone size={16} />
-            📱 Mobile (QR Code)
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("pc")}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              padding: "10px 14px",
-              border: "none",
-              borderBottom: activeTab === "pc" ? "3px solid #059669" : "3px solid transparent",
-              backgroundColor: "transparent",
-              color: activeTab === "pc" ? "#064E3B" : "#6B7280",
-              fontWeight: activeTab === "pc" ? "700" : "500",
-              fontSize: "13px",
-              cursor: "pointer",
-              whiteSpace: "nowrap"
-            }}
-          >
-            <Laptop size={16} />
-            💻 Multi-PC Setup
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("public")}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              padding: "10px 14px",
-              border: "none",
-              borderBottom: activeTab === "public" ? "3px solid #059669" : "3px solid transparent",
-              backgroundColor: "transparent",
-              color: activeTab === "public" ? "#064E3B" : "#6B7280",
-              fontWeight: activeTab === "public" ? "700" : "500",
-              fontSize: "13px",
-              cursor: "pointer",
-              whiteSpace: "nowrap"
-            }}
-          >
-            <Globe size={16} />
-            🌐 Public Cloud & Remote
+            📱 Connect Phone / Another PC
           </button>
 
           <button
@@ -1998,28 +1922,28 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
               display: "flex",
               alignItems: "center",
               gap: "6px",
-              padding: "10px 14px",
+              padding: "10px 16px",
               border: "none",
               borderBottom: activeTab === "lifetime" ? "3px solid #059669" : "3px solid transparent",
               backgroundColor: "transparent",
               color: activeTab === "lifetime" ? "#064E3B" : "#6B7280",
               fontWeight: activeTab === "lifetime" ? "700" : "500",
               fontSize: "13px",
-              cursor: "pointer",
-              whiteSpace: "nowrap"
+              cursor: "pointer"
             }}
           >
             <ShieldCheck size={16} />
-            🛡️ Lifetime Protection
+            🛡️ Lifetime Offline Protection & Backup
           </button>
         </div>
 
         {/* Tab Content */}
         <div style={{ padding: "18px 20px", overflowY: "auto", flex: 1, fontSize: "13px", lineHeight: "1.5" }}>
 
-          {/* TAB 1: MOBILE PHONE */}
-          {activeTab === "mobile" && (
+          {/* TAB 1: PHONE & PC CONNECTION */}
+          {activeTab === "connect" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              {/* Green Live Synced Banner */}
               <div style={{
                 backgroundColor: "#ECFDF5",
                 border: "1px solid #A7F3D0",
@@ -2029,66 +1953,26 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
                 alignItems: "flex-start",
                 gap: "10px"
               }}>
-                <Wifi size={20} color="#059669" style={{ flexShrink: 0, marginTop: "2px" }} />
+                <span style={{
+                  width: "10px",
+                  height: "10px",
+                  borderRadius: "50%",
+                  backgroundColor: "#10B981",
+                  boxShadow: "0 0 8px #10B981",
+                  marginTop: "5px",
+                  flexShrink: 0
+                }} />
                 <div>
                   <strong style={{ color: "#065F46", fontSize: "13px" }}>
-                    Live Real-Time Two-Way Mobile & PC Synchronization
+                    🟢 Live Two-Way Sync Active
                   </strong>
                   <div style={{ fontSize: "12px", color: "#047857", marginTop: "3px" }}>
-                    Whatever you enter or change on your mobile (patients, test results, bills) will appear on your PC instantly. And whatever you change on your PC updates on your phone in real time!
+                    Whatever you do on your mobile phone or laptop (add patient, delete patient, add test, add doctor, update report, billing) updates on both devices in real time.
                   </div>
                 </div>
               </div>
 
-              {/* Mode Switcher: Clinic Wi-Fi vs Public Cloud */}
-              <div style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "8px 12px",
-                backgroundColor: "#F3F4F6",
-                borderRadius: "8px"
-              }}>
-                <span style={{ fontWeight: "700", color: "#374151", fontSize: "12px" }}>
-                  Active Mobile Connection Mode:
-                </span>
-                <div style={{ display: "flex", gap: "6px" }}>
-                  <button
-                    type="button"
-                    onClick={() => setMobileMode("wifi")}
-                    style={{
-                      padding: "5px 12px",
-                      borderRadius: "6px",
-                      border: "none",
-                      backgroundColor: mobileMode === "wifi" ? "#059669" : "#E5E7EB",
-                      color: mobileMode === "wifi" ? "#FFFFFF" : "#4B5563",
-                      fontWeight: "600",
-                      fontSize: "12px",
-                      cursor: "pointer"
-                    }}
-                  >
-                    🏢 Clinic Wi-Fi ({resolvedHost})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setMobileMode("public")}
-                    style={{
-                      padding: "5px 12px",
-                      borderRadius: "6px",
-                      border: "none",
-                      backgroundColor: mobileMode === "public" ? "#059669" : "#E5E7EB",
-                      color: mobileMode === "public" ? "#FFFFFF" : "#4B5563",
-                      fontWeight: "600",
-                      fontSize: "12px",
-                      cursor: "pointer"
-                    }}
-                  >
-                    🌐 Public Internet / Remote
-                  </button>
-                </div>
-              </div>
-
-              {/* QR Code and Quick Link Section */}
+              {/* QR Code and Quick Open Section */}
               <div style={{
                 display: "flex",
                 alignItems: "center",
@@ -2100,28 +1984,51 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
                 flexWrap: "wrap",
                 justifyContent: "center"
               }}>
-                <div style={{
-                  padding: "10px",
-                  backgroundColor: "#FFFFFF",
-                  borderRadius: "12px",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                  border: "1px solid #E5E7EB",
-                  textAlign: "center"
-                }}>
+                {/* Clickable QR Code Card */}
+                <div
+                  onClick={handleOpenMobile}
+                  title="Click to open Lab Portal in new tab"
+                  style={{
+                    padding: "12px",
+                    backgroundColor: "#FFFFFF",
+                    borderRadius: "12px",
+                    boxShadow: "0 3px 10px rgba(0,0,0,0.08)",
+                    border: "2px solid #10B981",
+                    textAlign: "center",
+                    cursor: "pointer",
+                    transition: "transform 0.15s ease",
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.03)"}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+                >
                   <img
                     src={qrCodeUrl}
                     alt="Mobile Access QR Code"
                     style={{ width: "160px", height: "160px", display: "block" }}
                   />
-                  <div style={{ fontSize: "11px", color: "#4B5563", marginTop: "6px", fontWeight: "600" }}>
-                    Scan with Phone Camera
+                  <div style={{
+                    fontSize: "12px",
+                    color: "#065F46",
+                    marginTop: "8px",
+                    fontWeight: "700",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "4px"
+                  }}>
+                    <span>👆 Tap / Click to Open</span>
+                    <ExternalLink size={13} />
+                  </div>
+                  <div style={{ fontSize: "10px", color: "#6B7280" }}>
+                    Or scan with phone camera
                   </div>
                 </div>
 
+                {/* Direct Link and Quick Open Buttons */}
                 <div style={{ flex: "1 1 240px", display: "flex", flexDirection: "column", gap: "10px" }}>
                   <div>
                     <label style={{ fontSize: "11px", fontWeight: "700", textTransform: "uppercase", color: "#6B7280" }}>
-                      Direct Mobile Link ({mobileMode === "public" ? "🌐 Public Internet" : "🏢 Clinic Wi-Fi"}):
+                      Direct Link for Phone or Any PC:
                     </label>
                     <div style={{
                       display: "flex",
@@ -2131,7 +2038,7 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
                     }}>
                       <input
                         readOnly
-                        value={activeMobileUrl}
+                        value={mobileUrl}
                         style={{
                           flex: 1,
                           padding: "8px 10px",
@@ -2156,15 +2063,35 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
                           cursor: "pointer",
                           display: "flex",
                           alignItems: "center",
-                          gap: "4px"
+                          gap: "4px",
+                          whiteSpace: "nowrap"
                         }}
-                        title="Copy link to clipboard"
+                        title="Copy link"
                       >
                         {copiedLink ? <Check size={14} /> : <Copy size={14} />}
                         {copiedLink ? "Copied!" : "Copy"}
                       </button>
                     </div>
                   </div>
+
+                  {/* Big Green Open Button */}
+                  <Button
+                    primary
+                    onClick={handleOpenMobile}
+                    style={{
+                      width: "100%",
+                      justifyContent: "center",
+                      padding: "10px",
+                      fontSize: "13px",
+                      fontWeight: "700",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px"
+                    }}
+                  >
+                    <ExternalLink size={16} />
+                    🚀 Open Lab Portal Now (Click Here)
+                  </Button>
 
                   {/* Credentials helper */}
                   <div style={{
@@ -2175,7 +2102,7 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
                   }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <span style={{ fontSize: "11px", fontWeight: "700", color: "#1E40AF" }}>
-                        🔑 Mobile Login Details:
+                        🔑 Login Credentials:
                       </span>
                       <button
                         type="button"
@@ -2190,7 +2117,7 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
                           textDecoration: "underline"
                         }}
                       >
-                        {copiedCreds ? "Copied!" : "Copy Details"}
+                        {copiedCreds ? "Copied!" : "Copy Login"}
                       </button>
                     </div>
                     <div style={{ fontSize: "12px", color: "#1E3A8A", marginTop: "4px" }}>
@@ -2200,95 +2127,7 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
                 </div>
               </div>
 
-              {/* Instructions list */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                <strong style={{ color: "#374151" }}>How to connect your phone in 10 seconds:</strong>
-                <ol style={{ margin: 0, paddingLeft: "20px", display: "flex", flexDirection: "column", gap: "6px", color: "#4B5563" }}>
-                  <li>{mobileMode === "wifi" ? "Ensure your phone is connected to your clinic Wi-Fi (or your PC's Mobile Hotspot)." : "Ensure your phone has active mobile data (4G/5G) or Wi-Fi anywhere in the world."}</li>
-                  <li>Open your phone's Camera app and point it at the QR code above, or open <b>{activeMobileUrl}</b> in Google Chrome / Safari.</li>
-                  <li>Sign in using <b>Taz@18</b> / <b>Sofiya@2010</b>.</li>
-                  <li>💡 <i>Tip:</i> On your phone browser menu, tap <b>"Add to Home screen"</b> to use it as a full-screen app!</li>
-                </ol>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 2: MULTI-PC SETUP */}
-          {activeTab === "pc" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              <div style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                padding: "10px 14px",
-                borderRadius: "8px",
-                backgroundColor: syncStatus.isConnected ? "#ECFDF5" : "#FEF3C7",
-                border: `1px solid ${syncStatus.isConnected ? "#A7F3D0" : "#FDE68A"}`
-              }}>
-                <span style={{
-                  width: "10px",
-                  height: "10px",
-                  borderRadius: "50%",
-                  backgroundColor: syncStatus.isConnected ? "#10B981" : "#F59E0B"
-                }} />
-                <div>
-                  <strong>Status: {syncStatus.isConnected ? "🟢 Central Hub Connected" : "🟡 Disconnected / Local Mode"}</strong>
-                  <div style={{ fontSize: "11px", color: "#6B7280" }}>
-                    Active Server Endpoint: <code>{syncStatus.apiBase || "None"}</code>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label style={{ fontWeight: "700", display: "block", marginBottom: "6px" }}>
-                  Central Server URL / Endpoint:
-                </label>
-                <input
-                  style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", border: "1px solid #D1D5DB", marginBottom: "10px" }}
-                  value={customUrl}
-                  placeholder="e.g. http://192.168.31.166:5000/api"
-                  onChange={(e) => setCustomUrl(e.target.value)}
-                />
-
-                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
-                  <button
-                    type="button"
-                    className="role-chip"
-                    onClick={() => {
-                      const url = `http://${resolvedHost}:5000/api`;
-                      setCustomUrl(url);
-                      handleSaveUrl(url);
-                    }}
-                    title="Connect all PCs on clinic Wi-Fi to this computer"
-                  >
-                    🏢 Clinic Wi-Fi ({resolvedHost}:5000)
-                  </button>
-                  <button
-                    type="button"
-                    className="role-chip"
-                    onClick={() => {
-                      const url = "https://taz-diagnostics.onrender.com/api";
-                      setCustomUrl(url);
-                      handleSaveUrl(url);
-                    }}
-                    title="Connect 24/7 via cloud backend"
-                  >
-                    ☁️ Cloud Backend (Render)
-                  </button>
-                  <button
-                    type="button"
-                    className="role-chip"
-                    onClick={() => {
-                      setCustomUrl("");
-                      handleSaveUrl("");
-                    }}
-                    title="Auto-detect based on current hostname"
-                  >
-                    🔄 Auto-Detect
-                  </button>
-                </div>
-              </div>
-
+              {/* Quick 3-Step Guide */}
               <div style={{
                 backgroundColor: "#F3F4F6",
                 borderRadius: "8px",
@@ -2296,137 +2135,17 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
                 fontSize: "12px",
                 color: "#374151"
               }}>
-                <strong style={{ display: "block", marginBottom: "6px" }}>💻 Connecting Receptionist & Doctor Cabin PCs:</strong>
+                <strong style={{ display: "block", marginBottom: "6px" }}>📱 How to Connect Your Mobile Phone:</strong>
                 <ol style={{ margin: 0, paddingLeft: "18px", display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <li>Keep this main PC running with the server on (port 5000).</li>
-                  <li>On any other PC in the clinic connected to the same Wi-Fi, open Google Chrome or Microsoft Edge.</li>
-                  <li>Navigate to: <b>{localMobileUrl}</b></li>
-                  <li>All PCs will automatically synchronize patients, lab reports, test configurations, and billing in real time!</li>
+                  <li>Ensure your phone is connected to the same clinic Wi-Fi (or mobile hotspot).</li>
+                  <li>Scan the QR code above with your phone camera, or open <b>{mobileUrl}</b> in Chrome/Safari.</li>
+                  <li>Sign in with <b>Taz@18</b> / <b>Sofiya@2010</b>. Everything you add, edit, or delete synchronizes immediately with this PC!</li>
                 </ol>
               </div>
             </div>
           )}
 
-          {/* TAB 3: PUBLIC CLOUD & REMOTE ACCESS */}
-          {activeTab === "public" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              <div style={{
-                backgroundColor: "#EFF6FF",
-                border: "1px solid #BFDBFE",
-                borderRadius: "10px",
-                padding: "14px",
-                display: "flex",
-                gap: "12px"
-              }}>
-                <Globe size={28} color="#2563EB" style={{ flexShrink: 0 }} />
-                <div>
-                  <strong style={{ color: "#1E40AF", fontSize: "14px" }}>
-                    Public Internet & Remote Clinic Access
-                  </strong>
-                  <div style={{ color: "#1E3A8A", fontSize: "12px", marginTop: "4px", lineHeight: "1.5" }}>
-                    Make your lab portal accessible to doctors, technicians, and patients from anywhere in the world — on 4G/5G mobile, home computers, or multiple clinic branches.
-                  </div>
-                </div>
-              </div>
-
-              {/* Set Public URL */}
-              <div style={{
-                padding: "14px",
-                backgroundColor: "#FFFFFF",
-                border: "1px solid #E5E7EB",
-                borderRadius: "10px"
-              }}>
-                <label style={{ fontWeight: "700", display: "block", marginBottom: "6px", color: "#111827" }}>
-                  Your Public Cloud / Custom Domain URL:
-                </label>
-                <div style={{ display: "flex", gap: "6px" }}>
-                  <input
-                    style={{ flex: 1, padding: "8px 12px", borderRadius: "6px", border: "1px solid #D1D5DB" }}
-                    value={publicUrl}
-                    placeholder="https://taz-diagnostics.onrender.com or your custom domain"
-                    onChange={(e) => setPublicUrl(e.target.value)}
-                  />
-                  <Button primary onClick={() => handleSavePublicUrl(publicUrl)}>
-                    Save URL
-                  </Button>
-                </div>
-                <div style={{ fontSize: "11px", color: "#6B7280", marginTop: "6px" }}>
-                  Setting this URL updates the QR Code on the Mobile Tab so phones outside the clinic Wi-Fi can scan & connect!
-                </div>
-              </div>
-
-              {/* Method 1: Instant Free Remote Tunnel */}
-              <div style={{
-                padding: "14px",
-                backgroundColor: "#F9FAFB",
-                border: "1px solid #E5E7EB",
-                borderRadius: "10px"
-              }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <strong style={{ color: "#111827" }}>⚡ Option 1: Instant Free Remote Tunnel (Zero Cloud Setup)</strong>
-                  <button
-                    type="button"
-                    onClick={handleCopyTunnelCmd}
-                    style={{
-                      padding: "4px 10px",
-                      borderRadius: "6px",
-                      border: "1px solid #D1D5DB",
-                      backgroundColor: copiedTunnel ? "#10B981" : "#FFFFFF",
-                      color: copiedTunnel ? "#FFFFFF" : "#374151",
-                      fontSize: "11px",
-                      fontWeight: "600",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px"
-                    }}
-                  >
-                    {copiedTunnel ? <Check size={12} /> : <Copy size={12} />}
-                    {copiedTunnel ? "Copied!" : "Copy Command"}
-                  </button>
-                </div>
-                <p style={{ fontSize: "12px", color: "#4B5563", margin: "6px 0 10px" }}>
-                  Want to access this PC from home or on your phone right now without setting up servers? Run this command in a terminal on this computer:
-                </p>
-                <div style={{
-                  padding: "8px 12px",
-                  backgroundColor: "#1F2937",
-                  color: "#10B981",
-                  borderRadius: "6px",
-                  fontFamily: "monospace",
-                  fontSize: "12px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between"
-                }}>
-                  <code>npx localtunnel --port 5000</code>
-                </div>
-                <div style={{ fontSize: "11px", color: "#6B7280", marginTop: "6px" }}>
-                  You will instantly receive an encrypted <code>https://...loca.lt</code> link that you can open from any mobile phone or computer on Earth!
-                </div>
-              </div>
-
-              {/* Method 2: 100% Free 24/7 Hosting on Render */}
-              <div style={{
-                padding: "14px",
-                backgroundColor: "#F9FAFB",
-                border: "1px solid #E5E7EB",
-                borderRadius: "10px"
-              }}>
-                <strong style={{ color: "#111827", display: "block", marginBottom: "6px" }}>
-                  ☁️ Option 2: Turnkey 24/7 Free Cloud Hosting (Render / Railway)
-                </strong>
-                <ol style={{ margin: 0, paddingLeft: "18px", display: "flex", flexDirection: "column", gap: "4px", color: "#4B5563", fontSize: "12px" }}>
-                  <li>We have already created <code>render.yaml</code>, <code>Procfile</code>, and root <code>package.json</code> in this project.</li>
-                  <li>Push this repository to your GitHub account (<code>git push</code>).</li>
-                  <li>Go to <b>render.com</b> or <b>railway.app</b>, select "New Web Service", and connect your repository.</li>
-                  <li>Your software is automatically built and deployed live at <code>https://your-lab.onrender.com</code> with free HTTPS SSL and 24/7 uptime!</li>
-                </ol>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 4: LIFETIME PROTECTION & BACKUPS */}
+          {/* TAB 2: LIFETIME OFFLINE PROTECTION & BACKUPS */}
           {activeTab === "lifetime" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               <div style={{
@@ -2552,16 +2271,9 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
             {isTesting ? "Syncing..." : "🔄 Sync All Data Now"}
           </Button>
 
-          <div style={{ display: "flex", gap: "8px" }}>
-            {activeTab === "pc" && (
-              <Button primary onClick={() => { handleSaveUrl(customUrl); onClose(); }}>
-                Save & Connect
-              </Button>
-            )}
-            <Button onClick={onClose}>
-              Close
-            </Button>
-          </div>
+          <Button onClick={onClose}>
+            Close
+          </Button>
         </div>
       </div>
     </div>

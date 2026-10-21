@@ -73,6 +73,31 @@
         "TST044",
         "TST037"
       ]
+    },
+    {
+      "id": "PAT003",
+      "name": "Abdul",
+      "phone": "1234567890",
+      "age": "45",
+      "gender": "Male",
+      "email": "",
+      "referredBy": "Dr. Ahmed Khan",
+      "branch": "Main Branch",
+      "date": "2026-10-21",
+      "tests": [
+        "TST001",
+        "TST002",
+        "TST003",
+        "TST004",
+        "TST005",
+        "TST006",
+        "TST007",
+        "TST008",
+        "TST009",
+        "TST010",
+        "TST011",
+        "TST012"
+      ]
     }
   ],
   "doctors": [
@@ -992,6 +1017,14 @@
       "date": "2026-10-21",
       "status": "Completed",
       "results": {}
+    },
+    {
+      "id": "REP003",
+      "patientId": "PAT003",
+      "doctor": "Dr. Ahmed Khan",
+      "date": "2026-10-21",
+      "status": "Pending",
+      "results": {}
     }
   ],
   "bills": [
@@ -1009,6 +1042,15 @@
       "patientId": "PAT002",
       "date": "2026-10-21",
       "amount": 3780,
+      "paid": 0,
+      "mode": "Cash",
+      "status": "Pending"
+    },
+    {
+      "id": "BILL003",
+      "patientId": "PAT003",
+      "date": "2026-10-21",
+      "amount": 300,
       "paid": 0,
       "mode": "Cash",
       "status": "Pending"
@@ -1055,5 +1097,5 @@
     "retestCycleDays": 30,
     "whatsappTemplateName": "taz_monthly_retest_reminder"
   },
-  "_version": 1792553017774
+  "_version": 1792572137460
 }

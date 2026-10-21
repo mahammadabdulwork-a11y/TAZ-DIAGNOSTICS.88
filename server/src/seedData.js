@@ -672,6 +672,222 @@ export const DEFAULT_TESTS = [
     "reference": "Normal: < 5.7%, Diabetic: ≥ 6.5%",
     "price": 500,
     "status": "Active"
+  },
+  {
+    "id": "TST072",
+    "name": "Total Bilirubin",
+    "category": "Liver Function Test",
+    "unit": "mg/dl",
+    "reference": "0.1 - 1.2 mg/dl",
+    "price": 100,
+    "status": "Active"
+  },
+  {
+    "id": "TST073",
+    "name": "Direct Bilirubin",
+    "category": "Liver Function Test",
+    "unit": "mg/dl",
+    "reference": "Up to 0.3 mg/dl",
+    "price": 100,
+    "status": "Active"
+  },
+  {
+    "id": "TST074",
+    "name": "Indirect Bilirubin",
+    "category": "Liver Function Test",
+    "unit": "mg/dl",
+    "reference": "0.1 - 0.8 mg/dl",
+    "price": 100,
+    "status": "Active"
+  },
+  {
+    "id": "TST075",
+    "name": "S G P T",
+    "category": "Liver Function Test",
+    "unit": "IU/L",
+    "reference": "Male: Up to 45 IU/L\nFemale: Up to 34 IU/L",
+    "price": 150,
+    "status": "Active"
+  },
+  {
+    "id": "TST076",
+    "name": "S G O T",
+    "category": "Liver Function Test",
+    "unit": "IU/L",
+    "reference": "Male : Up to 45 IU/L\nFemale: Up to 37 IU/L",
+    "price": 150,
+    "status": "Active"
+  },
+  {
+    "id": "TST077",
+    "name": "Alkaline Phosphatase",
+    "category": "Liver Function Test",
+    "unit": "IU/L",
+    "reference": "44 - 147 IU/L",
+    "price": 150,
+    "status": "Active"
+  },
+  {
+    "id": "TST078",
+    "name": "Total Proteins",
+    "category": "Liver Function Test",
+    "unit": "gm/dl",
+    "reference": "6.4 - 8.3 gm/dl",
+    "price": 120,
+    "status": "Active"
+  },
+  {
+    "id": "TST079",
+    "name": "Serum Albumin",
+    "category": "Liver Function Test",
+    "unit": "gm/dl",
+    "reference": "3.4 - 5.0 gm/dl",
+    "price": 120,
+    "status": "Active"
+  },
+  {
+    "id": "TST080",
+    "name": "Globulin",
+    "category": "Liver Function Test",
+    "unit": "gm/dl",
+    "reference": "2.5 - 3.5 gm/dl",
+    "price": 100,
+    "status": "Active"
+  },
+  {
+    "id": "TST081",
+    "name": "A/G Ratio",
+    "category": "Liver Function Test",
+    "unit": "",
+    "reference": "1.0 - 2.1",
+    "price": 50,
+    "status": "Active"
+  },
+  {
+    "id": "TST082",
+    "name": "Lipid Profile",
+    "category": "Lipid Profile",
+    "unit": "Profile",
+    "reference": "Complete Lipid Profile Panel",
+    "price": 750,
+    "status": "Active"
+  },
+  {
+    "id": "TST083",
+    "name": "Total Cholesterol",
+    "category": "Lipid Profile",
+    "unit": "mg/dl",
+    "reference": "50 - 200 mg/dl",
+    "price": 120,
+    "status": "Active"
+  },
+  {
+    "id": "TST084",
+    "name": "H D L Cholesterol",
+    "category": "Lipid Profile",
+    "unit": "mg/dl",
+    "reference": "30 - 70 mg/dl",
+    "price": 150,
+    "status": "Active"
+  },
+  {
+    "id": "TST085",
+    "name": "Tryglycerides",
+    "category": "Lipid Profile",
+    "unit": "mg/dl",
+    "reference": "50 - 160 mg/dl",
+    "price": 150,
+    "status": "Active"
+  },
+  {
+    "id": "TST086",
+    "name": "L D L Cholesterol",
+    "category": "Lipid Profile",
+    "unit": "mg/dl",
+    "reference": "30 - 130 mg/dl",
+    "price": 150,
+    "status": "Active"
+  },
+  {
+    "id": "TST087",
+    "name": "V L D L Cholesterol",
+    "category": "Lipid Profile",
+    "unit": "mg/dl",
+    "reference": "Up to 30 mg/dl",
+    "price": 120,
+    "status": "Active"
+  },
+  {
+    "id": "TST088",
+    "name": "LDL/HDL",
+    "category": "Lipid Profile",
+    "unit": "",
+    "reference": "Up to 3.5",
+    "price": 50,
+    "status": "Active"
+  },
+  {
+    "id": "TST089",
+    "name": "Electrolytes Profile",
+    "category": "Electrolytes",
+    "unit": "Profile",
+    "reference": "Sodium, Potassium, Chloride, Calcium",
+    "price": 600,
+    "status": "Active"
+  },
+  {
+    "id": "TST090",
+    "name": "Serum Sodium",
+    "category": "Electrolytes",
+    "unit": "mmol/L",
+    "reference": "135 - 150 mmol/L",
+    "price": 150,
+    "status": "Active"
+  },
+  {
+    "id": "TST091",
+    "name": "Serum Potassium",
+    "category": "Electrolytes",
+    "unit": "mmol/L",
+    "reference": "3.5 - 5.0 mmol/L",
+    "price": 150,
+    "status": "Active"
+  },
+  {
+    "id": "TST092",
+    "name": "Serum Chloride",
+    "category": "Electrolytes",
+    "unit": "mmol/L",
+    "reference": "94 - 110 mmol/L",
+    "price": 150,
+    "status": "Active"
+  },
+  {
+    "id": "TST093",
+    "name": "Serum Calcium",
+    "category": "Electrolytes",
+    "unit": "mg/dl",
+    "reference": "8.6 - 10.2 mg/dl",
+    "price": 150,
+    "status": "Active"
+  },
+  {
+    "id": "TST094",
+    "name": "Glycosylated Haemoglobin(HBA1C)",
+    "category": "HBA1C",
+    "unit": "%",
+    "reference": "Non Diabetic : 4.0 - 6.0 %\nGood Control : 6.0 - 7.0 %\nFair Control : 7.0 - 8.0 %\nPoor Control : > 8.0 %",
+    "price": 500,
+    "status": "Active"
+  },
+  {
+    "id": "TST095",
+    "name": "Mean Blood Glucose",
+    "category": "HBA1C",
+    "unit": "mg/dl",
+    "reference": "70 - 126 mg/dl",
+    "price": 150,
+    "status": "Active"
   }
 ];
 

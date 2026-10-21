@@ -1993,9 +1993,7 @@ td small {
 }
 
 .taz-result-colon {
-  font-weight: 600;
-  margin-right: 6px;
-  color: #111111;
+  display: none !important;
 }
 
 .taz-result-val {
@@ -2015,12 +2013,14 @@ td small {
   font-weight: 500;
   color: #222222;
   line-height: 1.35;
-  text-align: left;
+  text-align: center;
+  white-space: pre-line;
 }
 
 .taz-ref-item {
-  white-space: normal;
-  text-align: left;
+  white-space: pre-line;
+  text-align: center;
+  line-height: 1.35;
 }
 
 /* Footer & Signature */

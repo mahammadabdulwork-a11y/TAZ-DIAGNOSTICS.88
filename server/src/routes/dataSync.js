@@ -52,6 +52,74 @@ router.post("/all/sync", async (req, res) => {
   }
 });
 
+import os from "os";
+
+// 3.1 Network IP addresses discovery for Mobile & Multi-PC connection
+router.get("/network-info", (req, res) => {
+  try {
+    const interfaces = os.networkInterfaces();
+    const addresses = [];
+
+    for (const name of Object.keys(interfaces)) {
+      for (const iface of interfaces[name]) {
+        if (iface.family === "IPv4" && !iface.internal) {
+          addresses.push({
+            name,
+            ip: iface.address,
+            netmask: iface.netmask
+          });
+        }
+      }
+    }
+
+    const primaryIp = addresses.find((a) => a.ip.startsWith("192.168."))?.ip || addresses[0]?.ip || "localhost";
+
+    res.json({
+      success: true,
+      hostname: os.hostname(),
+      primaryIp,
+      addresses,
+      mobileUrl: `http://${primaryIp}:5173/`,
+      serverUrl: `http://${primaryIp}:5000/api`,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 3.2 Export full lifetime backup as JSON file
+router.get("/backup/export", async (req, res) => {
+  try {
+    const bundle = await getAllCollectionsAsync();
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const filename = `taz_diagnostic_lifetime_backup_${dateStr}.json`;
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.setHeader("Content-Type", "application/json");
+    res.send(JSON.stringify(bundle, null, 2));
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 3.3 Import / restore full backup
+router.post("/backup/import", async (req, res) => {
+  try {
+    const bundle = req.body;
+    if (!bundle || typeof bundle !== "object") {
+      return res.status(400).json({ success: false, error: "Invalid backup bundle format" });
+    }
+    const result = await saveAllCollectionsAsync(bundle);
+    res.json({
+      success: true,
+      message: "Lifetime database restored successfully!",
+      version: result.version
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // 4. Get specific collection (e.g., doctors, tests, patients, reports, bills, users, settings)
 router.get("/:collection", async (req, res) => {
   try {

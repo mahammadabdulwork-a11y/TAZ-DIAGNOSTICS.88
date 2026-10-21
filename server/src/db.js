@@ -19,6 +19,22 @@ if (!fs.existsSync(DATA_DIR)) {
 
 const DB_FILE = path.join(DATA_DIR, "reminders_db.json");
 const APP_STORE_FILE = path.join(DATA_DIR, "app_store.json");
+const BACKUP_DIR = path.join(DATA_DIR, "backups");
+
+if (!fs.existsSync(BACKUP_DIR)) {
+  fs.mkdirSync(BACKUP_DIR, { recursive: true });
+}
+
+try {
+  const existingBackups = fs.readdirSync(BACKUP_DIR);
+  if (existingBackups.length === 0 && fs.existsSync(APP_STORE_FILE)) {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const initialBackup = path.join(BACKUP_DIR, `backup_${todayStr}.json`);
+    fs.copyFileSync(APP_STORE_FILE, initialBackup);
+  }
+} catch (e) {
+  // ignore
+}
 
 // Default initial dataset for reminders & whatsapp
 const INITIAL_DATA = {
@@ -211,10 +227,25 @@ function getAppStoreFromFile() {
   }
 }
 
+let lastBackupDate = "";
+
 function saveAppStoreToFile(store) {
   store._version = Date.now();
   lastDataVersion = store._version;
-  fs.writeFileSync(APP_STORE_FILE, JSON.stringify(store, null, 2), "utf8");
+  const storeStr = JSON.stringify(store, null, 2);
+  fs.writeFileSync(APP_STORE_FILE, storeStr, "utf8");
+
+  // Lifetime automated backup: ensure a daily timestamped backup exists
+  try {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    if (lastBackupDate !== todayStr) {
+      const backupFile = path.join(BACKUP_DIR, `backup_${todayStr}.json`);
+      fs.writeFileSync(backupFile, storeStr, "utf8");
+      lastBackupDate = todayStr;
+    }
+  } catch (err) {
+    console.warn("[Backup] Automated backup snapshot warning:", err.message);
+  }
 }
 
 // ---------------------------------------------------------------------------

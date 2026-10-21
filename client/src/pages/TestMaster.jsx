@@ -861,7 +861,7 @@ export default function TestMaster() {
 
                     <td>{test.unit}</td>
 
-                    <td>{test.referenceRange}</td>
+                    <td style={{ whiteSpace: "pre-line", lineHeight: "1.35", minWidth: 150 }}>{test.referenceRange || "—"}</td>
 
                     <td>
                       <strong>
@@ -1043,11 +1043,27 @@ export default function TestMaster() {
                     Reference Range <b>*</b>
                   </label>
 
-                  <input
+                  <textarea
+                    rows={3}
                     name="referenceRange"
                     value={form.referenceRange}
                     onChange={handleChange}
-                    placeholder="Example: 70 - 100"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.stopPropagation();
+                      }
+                    }}
+                    placeholder={"Line 1: Male: 14 - 17\nLine 2: Female: 12 - 15\nLine 3: Child: 11 - 14"}
+                    style={{
+                      width: "100%",
+                      minHeight: "75px",
+                      resize: "vertical",
+                      padding: "8px 10px",
+                      fontFamily: "inherit",
+                      fontSize: "13px",
+                      lineHeight: "1.4",
+                      boxSizing: "border-box"
+                    }}
                   />
                 </div>
 

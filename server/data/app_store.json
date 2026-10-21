@@ -1,5 +1,80 @@
 {
-  "patients": [],
+  "patients": [
+    {
+      "id": "PAT001",
+      "name": "ram",
+      "phone": "1234567890",
+      "age": "38",
+      "gender": "Male",
+      "email": "",
+      "referredBy": "Self",
+      "branch": "Main Branch",
+      "date": "2026-10-21",
+      "tests": [
+        "TST001",
+        "TST002",
+        "TST003",
+        "TST004",
+        "TST005",
+        "TST006",
+        "TST007",
+        "TST008",
+        "TST009",
+        "TST010",
+        "TST011",
+        "TST012",
+        "TST025",
+        "TST026",
+        "TST027",
+        "TST028",
+        "TST029",
+        "TST030",
+        "TST031",
+        "TST032"
+      ]
+    },
+    {
+      "id": "PAT002",
+      "name": "ram",
+      "phone": "1234567890",
+      "age": "15",
+      "gender": "Male",
+      "email": "",
+      "referredBy": "Self",
+      "branch": "Main Branch",
+      "date": "2026-10-21",
+      "tests": [
+        "TST083",
+        "TST084",
+        "TST085",
+        "TST086",
+        "TST087",
+        "TST088",
+        "TST090",
+        "TST091",
+        "TST092",
+        "TST093",
+        "TST094",
+        "TST095",
+        "TST072",
+        "TST073",
+        "TST074",
+        "TST075",
+        "TST076",
+        "TST077",
+        "TST078",
+        "TST079",
+        "TST080",
+        "TST081",
+        "TST040",
+        "TST041",
+        "TST042",
+        "TST043",
+        "TST044",
+        "TST037"
+      ]
+    }
+  ],
   "doctors": [
     {
       "id": "DOC001",
@@ -623,9 +698,9 @@
     {
       "id": "TST066",
       "name": "LFT",
-      "category": "Additional Tests",
-      "unit": "Various",
-      "reference": "Bilirubin: 0.2-1.2, SGOT: 5-40, SGPT: 7-56 U/L",
+      "category": "Bio Chemistry",
+      "unit": "Profile",
+      "reference": "Complete Liver Function Panel",
       "price": 800,
       "status": "Active"
     },
@@ -673,10 +748,272 @@
       "reference": "Normal: < 5.7%, Diabetic: ≥ 6.5%",
       "price": 500,
       "status": "Active"
+    },
+    {
+      "id": "TST072",
+      "name": "Total Bilirubin",
+      "category": "Liver Function Test",
+      "unit": "mg/dl",
+      "reference": "0.1 - 1.2 mg/dl",
+      "price": 100,
+      "status": "Active"
+    },
+    {
+      "id": "TST073",
+      "name": "Direct Bilirubin",
+      "category": "Liver Function Test",
+      "unit": "mg/dl",
+      "reference": "Up to 0.3 mg/dl",
+      "price": 100,
+      "status": "Active"
+    },
+    {
+      "id": "TST074",
+      "name": "Indirect Bilirubin",
+      "category": "Liver Function Test",
+      "unit": "mg/dl",
+      "reference": "0.1 - 0.8 mg/dl",
+      "price": 100,
+      "status": "Active"
+    },
+    {
+      "id": "TST075",
+      "name": "S G P T",
+      "category": "Liver Function Test",
+      "unit": "IU/L",
+      "reference": "Male: Up to 45 IU/L\nFemale: Up to 34 IU/L",
+      "price": 150,
+      "status": "Active"
+    },
+    {
+      "id": "TST076",
+      "name": "S G O T",
+      "category": "Liver Function Test",
+      "unit": "IU/L",
+      "reference": "Male : Up to 45 IU/L\nFemale: Up to 37 IU/L",
+      "price": 150,
+      "status": "Active"
+    },
+    {
+      "id": "TST077",
+      "name": "Alkaline Phosphatase",
+      "category": "Liver Function Test",
+      "unit": "IU/L",
+      "reference": "44 - 147 IU/L",
+      "price": 150,
+      "status": "Active"
+    },
+    {
+      "id": "TST078",
+      "name": "Total Proteins",
+      "category": "Liver Function Test",
+      "unit": "gm/dl",
+      "reference": "6.4 - 8.3 gm/dl",
+      "price": 120,
+      "status": "Active"
+    },
+    {
+      "id": "TST079",
+      "name": "Serum Albumin",
+      "category": "Liver Function Test",
+      "unit": "gm/dl",
+      "reference": "3.4 - 5.0 gm/dl",
+      "price": 120,
+      "status": "Active"
+    },
+    {
+      "id": "TST080",
+      "name": "Globulin",
+      "category": "Liver Function Test",
+      "unit": "gm/dl",
+      "reference": "2.5 - 3.5 gm/dl",
+      "price": 100,
+      "status": "Active"
+    },
+    {
+      "id": "TST081",
+      "name": "A/G Ratio",
+      "category": "Liver Function Test",
+      "unit": "",
+      "reference": "1.0 - 2.1",
+      "price": 50,
+      "status": "Active"
+    },
+    {
+      "id": "TST082",
+      "name": "Lipid Profile",
+      "category": "Lipid Profile",
+      "unit": "Profile",
+      "reference": "Complete Lipid Profile Panel",
+      "price": 750,
+      "status": "Active"
+    },
+    {
+      "id": "TST083",
+      "name": "Total Cholesterol",
+      "category": "Lipid Profile",
+      "unit": "mg/dl",
+      "reference": "50 - 200 mg/dl",
+      "price": 120,
+      "status": "Active"
+    },
+    {
+      "id": "TST084",
+      "name": "H D L Cholesterol",
+      "category": "Lipid Profile",
+      "unit": "mg/dl",
+      "reference": "30 - 70 mg/dl",
+      "price": 150,
+      "status": "Active"
+    },
+    {
+      "id": "TST085",
+      "name": "Tryglycerides",
+      "category": "Lipid Profile",
+      "unit": "mg/dl",
+      "reference": "50 - 160 mg/dl",
+      "price": 150,
+      "status": "Active"
+    },
+    {
+      "id": "TST086",
+      "name": "L D L Cholesterol",
+      "category": "Lipid Profile",
+      "unit": "mg/dl",
+      "reference": "30 - 130 mg/dl",
+      "price": 150,
+      "status": "Active"
+    },
+    {
+      "id": "TST087",
+      "name": "V L D L Cholesterol",
+      "category": "Lipid Profile",
+      "unit": "mg/dl",
+      "reference": "Up to 30 mg/dl",
+      "price": 120,
+      "status": "Active"
+    },
+    {
+      "id": "TST088",
+      "name": "LDL/HDL",
+      "category": "Lipid Profile",
+      "unit": "",
+      "reference": "Up to 3.5",
+      "price": 50,
+      "status": "Active"
+    },
+    {
+      "id": "TST089",
+      "name": "Electrolytes Profile",
+      "category": "Electrolytes",
+      "unit": "Profile",
+      "reference": "Sodium, Potassium, Chloride, Calcium",
+      "price": 600,
+      "status": "Active"
+    },
+    {
+      "id": "TST090",
+      "name": "Serum Sodium",
+      "category": "Electrolytes",
+      "unit": "mmol/L",
+      "reference": "135 - 150 mmol/L",
+      "price": 150,
+      "status": "Active"
+    },
+    {
+      "id": "TST091",
+      "name": "Serum Potassium",
+      "category": "Electrolytes",
+      "unit": "mmol/L",
+      "reference": "3.5 - 5.0 mmol/L",
+      "price": 150,
+      "status": "Active"
+    },
+    {
+      "id": "TST092",
+      "name": "Serum Chloride",
+      "category": "Electrolytes",
+      "unit": "mmol/L",
+      "reference": "94 - 110 mmol/L",
+      "price": 150,
+      "status": "Active"
+    },
+    {
+      "id": "TST093",
+      "name": "Serum Calcium",
+      "category": "Electrolytes",
+      "unit": "mg/dl",
+      "reference": "8.6 - 10.2 mg/dl",
+      "price": 150,
+      "status": "Active"
+    },
+    {
+      "id": "TST094",
+      "name": "Glycosylated Haemoglobin(HBA1C)",
+      "category": "HBA1C",
+      "unit": "%",
+      "reference": "Non Diabetic : 4.0 - 6.0 %\nGood Control : 6.0 - 7.0 %\nFair Control : 7.0 - 8.0 %\nPoor Control : > 8.0 %",
+      "price": 500,
+      "status": "Active"
+    },
+    {
+      "id": "TST095",
+      "name": "Mean Blood Glucose",
+      "category": "HBA1C",
+      "unit": "mg/dl",
+      "reference": "70 - 126 mg/dl",
+      "price": 150,
+      "status": "Active"
+    },
+    {
+      "id": "TST096",
+      "name": "Lipid Sub-Fraction Test",
+      "category": "Clinical Pathology",
+      "unit": "",
+      "reference": "Male: 14 - 17\nFemale: 12 - 15\nChild: 10 - 13",
+      "price": 350,
+      "status": "Active",
+      "updatedAt": "2026-10-21T03:23:37.629Z"
     }
   ],
-  "reports": [],
-  "bills": [],
+  "reports": [
+    {
+      "id": "REP001",
+      "patientId": "PAT001",
+      "doctor": "Self",
+      "date": "2026-10-21",
+      "status": "Pending",
+      "results": {}
+    },
+    {
+      "id": "REP002",
+      "patientId": "PAT002",
+      "doctor": "Self",
+      "date": "2026-10-21",
+      "status": "Completed",
+      "results": {}
+    }
+  ],
+  "bills": [
+    {
+      "id": "BILL001",
+      "patientId": "PAT001",
+      "date": "2026-10-21",
+      "amount": 550,
+      "paid": 0,
+      "mode": "Cash",
+      "status": "Pending"
+    },
+    {
+      "id": "BILL002",
+      "patientId": "PAT002",
+      "date": "2026-10-21",
+      "amount": 3780,
+      "paid": 0,
+      "mode": "Cash",
+      "status": "Pending"
+    }
+  ],
   "messages": [],
   "branches": [
     {
@@ -718,5 +1055,5 @@
     "retestCycleDays": 30,
     "whatsappTemplateName": "taz_monthly_retest_reminder"
   },
-  "_version": 1791722159706
+  "_version": 1792553017774
 }

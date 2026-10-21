@@ -494,7 +494,7 @@ export default function Tests() {
 
                   <td>{test.category || "-"}</td>
                   <td>{test.unit || "-"}</td>
-                  <td>{test.referenceRange || "-"}</td>
+                  <td style={{ whiteSpace: "pre-line", lineHeight: "1.35", minWidth: 150 }}>{test.referenceRange || "-"}</td>
                   <td>₹{Number(test.price || 0).toLocaleString("en-IN")}</td>
 
                   <td>
@@ -585,9 +585,13 @@ export default function Tests() {
                   />
                 </div>
 
-                <div className="field">
-                  <label>Reference Range</label>
-                  <input
+                <div className="field" style={{ gridColumn: "1 / -1" }}>
+                  <label style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span>Reference Range</span>
+                    <span style={{ fontSize: "11px", color: "#8b1730" }}>Press Enter for 2nd & 3rd lines</span>
+                  </label>
+                  <textarea
+                    rows={3}
                     value={form.referenceRange}
                     onChange={(e) =>
                       setForm({
@@ -595,6 +599,22 @@ export default function Tests() {
                         referenceRange: e.target.value,
                       })
                     }
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.stopPropagation();
+                      }
+                    }}
+                    placeholder={"Line 1: Male: 14 - 17\nLine 2: Female: 12 - 15\nLine 3: Child: 11 - 14"}
+                    style={{
+                      width: "100%",
+                      minHeight: "75px",
+                      resize: "vertical",
+                      padding: "8px 10px",
+                      fontFamily: "inherit",
+                      fontSize: "13px",
+                      lineHeight: "1.4",
+                      boxSizing: "border-box"
+                    }}
                   />
                 </div>
 

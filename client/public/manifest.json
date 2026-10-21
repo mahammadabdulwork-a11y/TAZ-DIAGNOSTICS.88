@@ -1,0 +1,19 @@
+{
+  "short_name": "Taz Lab",
+  "name": "TAZ DIAGNOSTIC — Medical Laboratory & Precision Imaging",
+  "description": "Comprehensive Clinical Laboratory & Multi-Device Diagnostic Portal",
+  "icons": [
+    {
+      "src": "/microscope.jpg",
+      "sizes": "192x192 512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#064E3B",
+  "theme_color": "#064E3B",
+  "display": "standalone",
+  "orientation": "any",
+  "scope": "/"
+}

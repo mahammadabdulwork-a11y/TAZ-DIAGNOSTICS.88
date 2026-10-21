@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Activity,
   AlertCircle,
@@ -10,15 +10,19 @@ import {
   ChevronDown,
   ClipboardList,
   Clock,
+  Copy,
   CreditCard,
   Database,
   Download,
   Edit3,
+  ExternalLink,
   Eye,
   EyeOff,
   FileText,
   FlaskConical,
+  Globe,
   Home,
+  Laptop,
   LogOut,
   Mail,
   MapPin,
@@ -33,6 +37,7 @@ import {
   Search,
   Settings as SettingsIcon,
   ShieldCheck,
+  Smartphone,
   Stethoscope,
   Trash2,
   Upload,
@@ -40,6 +45,7 @@ import {
   UserCheck,
   UserCog,
   Users,
+  Wifi,
   X,
 } from "lucide-react";
 // PDF is now generated via a dedicated print window (no external PDF lib needed)
@@ -56,6 +62,9 @@ import {
   pushAllToBackend,
   getCustomApiBase,
   setCustomApiBase,
+  fetchNetworkInfo,
+  downloadLifetimeBackup,
+  restoreLifetimeBackup,
 } from "./services/dataSyncService.js";
 
 
@@ -1086,7 +1095,7 @@ const DEFAULT_TESTS = [
   {
     id: "TST072",
     name: "Total Bilirubin",
-    category: "Bio Chemistry",
+    category: "Liver Function Test",
     unit: "mg/dl",
     reference: "0.1 - 1.2 mg/dl",
     price: 100,
@@ -1095,7 +1104,7 @@ const DEFAULT_TESTS = [
   {
     id: "TST073",
     name: "Direct Bilirubin",
-    category: "Bio Chemistry",
+    category: "Liver Function Test",
     unit: "mg/dl",
     reference: "Up to 0.3 mg/dl",
     price: 100,
@@ -1104,7 +1113,7 @@ const DEFAULT_TESTS = [
   {
     id: "TST074",
     name: "Indirect Bilirubin",
-    category: "Bio Chemistry",
+    category: "Liver Function Test",
     unit: "mg/dl",
     reference: "0.1 - 0.8 mg/dl",
     price: 100,
@@ -1113,7 +1122,7 @@ const DEFAULT_TESTS = [
   {
     id: "TST075",
     name: "S G P T",
-    category: "Bio Chemistry",
+    category: "Liver Function Test",
     unit: "IU/L",
     reference: "Male: Up to 45 IU/L\nFemale: Up to 34 IU/L",
     price: 150,
@@ -1122,7 +1131,7 @@ const DEFAULT_TESTS = [
   {
     id: "TST076",
     name: "S G O T",
-    category: "Bio Chemistry",
+    category: "Liver Function Test",
     unit: "IU/L",
     reference: "Male : Up to 45 IU/L\nFemale: Up to 37 IU/L",
     price: 150,
@@ -1131,7 +1140,7 @@ const DEFAULT_TESTS = [
   {
     id: "TST077",
     name: "Alkaline Phosphatase",
-    category: "Bio Chemistry",
+    category: "Liver Function Test",
     unit: "IU/L",
     reference: "44 - 147 IU/L",
     price: 150,
@@ -1140,7 +1149,7 @@ const DEFAULT_TESTS = [
   {
     id: "TST078",
     name: "Total Proteins",
-    category: "Bio Chemistry",
+    category: "Liver Function Test",
     unit: "gm/dl",
     reference: "6.4 - 8.3 gm/dl",
     price: 120,
@@ -1149,7 +1158,7 @@ const DEFAULT_TESTS = [
   {
     id: "TST079",
     name: "Serum Albumin",
-    category: "Bio Chemistry",
+    category: "Liver Function Test",
     unit: "gm/dl",
     reference: "3.4 - 5.0 gm/dl",
     price: 120,
@@ -1158,7 +1167,7 @@ const DEFAULT_TESTS = [
   {
     id: "TST080",
     name: "Globulin",
-    category: "Bio Chemistry",
+    category: "Liver Function Test",
     unit: "gm/dl",
     reference: "2.5 - 3.5 gm/dl",
     price: 100,
@@ -1167,7 +1176,7 @@ const DEFAULT_TESTS = [
   {
     id: "TST081",
     name: "A/G Ratio",
-    category: "Bio Chemistry",
+    category: "Liver Function Test",
     unit: "",
     reference: "1.0 - 2.1",
     price: 50,
@@ -1180,7 +1189,7 @@ const DEFAULT_TESTS = [
   {
     id: "TST082",
     name: "Lipid Profile",
-    category: "Bio Chemistry",
+    category: "Lipid Profile",
     unit: "Profile",
     reference: "Complete Lipid Profile Panel",
     price: 750,
@@ -1189,7 +1198,7 @@ const DEFAULT_TESTS = [
   {
     id: "TST083",
     name: "Total Cholesterol",
-    category: "Bio Chemistry",
+    category: "Lipid Profile",
     unit: "mg/dl",
     reference: "50 - 200 mg/dl",
     price: 120,
@@ -1198,7 +1207,7 @@ const DEFAULT_TESTS = [
   {
     id: "TST084",
     name: "H D L Cholesterol",
-    category: "Bio Chemistry",
+    category: "Lipid Profile",
     unit: "mg/dl",
     reference: "30 - 70 mg/dl",
     price: 150,
@@ -1207,7 +1216,7 @@ const DEFAULT_TESTS = [
   {
     id: "TST085",
     name: "Tryglycerides",
-    category: "Bio Chemistry",
+    category: "Lipid Profile",
     unit: "mg/dl",
     reference: "50 - 160 mg/dl",
     price: 150,
@@ -1216,7 +1225,7 @@ const DEFAULT_TESTS = [
   {
     id: "TST086",
     name: "L D L Cholesterol",
-    category: "Bio Chemistry",
+    category: "Lipid Profile",
     unit: "mg/dl",
     reference: "30 - 130 mg/dl",
     price: 150,
@@ -1225,7 +1234,7 @@ const DEFAULT_TESTS = [
   {
     id: "TST087",
     name: "V L D L Cholesterol",
-    category: "Bio Chemistry",
+    category: "Lipid Profile",
     unit: "mg/dl",
     reference: "Up to 30 mg/dl",
     price: 120,
@@ -1234,7 +1243,7 @@ const DEFAULT_TESTS = [
   {
     id: "TST088",
     name: "LDL/HDL",
-    category: "Bio Chemistry",
+    category: "Lipid Profile",
     unit: "",
     reference: "Up to 3.5",
     price: 50,
@@ -1247,7 +1256,7 @@ const DEFAULT_TESTS = [
   {
     id: "TST089",
     name: "Electrolytes Profile",
-    category: "Bio Chemistry",
+    category: "Electrolytes",
     unit: "Profile",
     reference: "Sodium, Potassium, Chloride, Calcium",
     price: 600,
@@ -1256,7 +1265,7 @@ const DEFAULT_TESTS = [
   {
     id: "TST090",
     name: "Serum Sodium",
-    category: "Bio Chemistry",
+    category: "Electrolytes",
     unit: "mmol/L",
     reference: "135 - 150 mmol/L",
     price: 150,
@@ -1265,7 +1274,7 @@ const DEFAULT_TESTS = [
   {
     id: "TST091",
     name: "Serum Potassium",
-    category: "Bio Chemistry",
+    category: "Electrolytes",
     unit: "mmol/L",
     reference: "3.5 - 5.0 mmol/L",
     price: 150,
@@ -1274,7 +1283,7 @@ const DEFAULT_TESTS = [
   {
     id: "TST092",
     name: "Serum Chloride",
-    category: "Bio Chemistry",
+    category: "Electrolytes",
     unit: "mmol/L",
     reference: "94 - 110 mmol/L",
     price: 150,
@@ -1283,9 +1292,31 @@ const DEFAULT_TESTS = [
   {
     id: "TST093",
     name: "Serum Calcium",
-    category: "Bio Chemistry",
+    category: "Electrolytes",
     unit: "mg/dl",
     reference: "8.6 - 10.2 mg/dl",
+    price: 150,
+    status: "Active",
+  },
+
+  // ==========================================
+  // HBA1C — Individual Parameters
+  // ==========================================
+  {
+    id: "TST094",
+    name: "Glycosylated Haemoglobin(HBA1C)",
+    category: "HBA1C",
+    unit: "%",
+    reference: "Non Diabetic : 4.0 - 6.0 %\nGood Control : 6.0 - 7.0 %\nFair Control : 7.0 - 8.0 %\nPoor Control : > 8.0 %",
+    price: 500,
+    status: "Active",
+  },
+  {
+    id: "TST095",
+    name: "Mean Blood Glucose",
+    category: "HBA1C",
+    unit: "mg/dl",
+    reference: "70 - 126 mg/dl",
     price: 150,
     status: "Active",
   },
@@ -1337,17 +1368,27 @@ function seed(force = false) {
   const existingTests = read(STORAGE.tests, null);
   if (force || !existingTests || !existingTests.length) {
     writeLocal(STORAGE.tests, DEFAULT_TESTS);
-    writeLocal("taz_tests_catalog_v", 6);
+    writeLocal("taz_tests_catalog_v", 8);
   } else {
     const currentVersion = Number(read("taz_tests_catalog_v", 0));
-    if (currentVersion < 6) {
-      const existingNames = new Set(existingTests.map((t) => (t?.name || "").toLowerCase().trim()));
-      const toAdd = DEFAULT_TESTS.filter((t) => !existingNames.has((t?.name || "").toLowerCase().trim()));
-      if (toAdd.length > 0) {
-        const merged = [...existingTests, ...toAdd];
-        writeLocal(STORAGE.tests, merged);
-      }
-      writeLocal("taz_tests_catalog_v", 6);
+    if (currentVersion < 8) {
+      const defaultMap = new Map(DEFAULT_TESTS.map((t) => [t.id, t]));
+      const defaultByName = new Map(DEFAULT_TESTS.map((t) => [t.name.toLowerCase().trim(), t]));
+      const updatedExisting = existingTests.map((t) => {
+        const match = defaultMap.get(t.id) || defaultByName.get((t?.name || "").toLowerCase().trim());
+        if (match) {
+          return { ...t, category: match.category, reference: match.reference, unit: match.unit };
+        }
+        return t;
+      });
+      const existingIds = new Set(updatedExisting.map((t) => t.id));
+      const existingNames = new Set(updatedExisting.map((t) => (t?.name || "").toLowerCase().trim()));
+      const toAdd = DEFAULT_TESTS.filter(
+        (t) => !existingIds.has(t.id) && !existingNames.has((t?.name || "").toLowerCase().trim())
+      );
+      const merged = [...updatedExisting, ...toAdd];
+      write(STORAGE.tests, merged);
+      writeLocal("taz_tests_catalog_v", 8);
     }
   }
 
@@ -1422,13 +1463,17 @@ function Button({
   type = "button",
   disabled = false,
   className = "",
+  id,
+  ...props
 }) {
   return (
     <button
+      id={id}
       type={type}
       disabled={disabled}
       className={`btn ${primary ? "primary" : ""} ${danger ? "danger" : ""} ${className}`}
       onClick={onClick}
+      {...props}
     >
       {children}
     </button>
@@ -1660,7 +1705,32 @@ function Layout({
             <strong>{active}</strong>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <button
+              type="button"
+              id="btn-connect-phone-pc"
+              onClick={() => setShowSyncModal(true)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "7px",
+                fontSize: "12px",
+                fontWeight: "700",
+                padding: "6px 14px",
+                borderRadius: "20px",
+                backgroundColor: "#fff0f3",
+                color: "#8b1730",
+                border: "1px solid #f2cfd7",
+                cursor: "pointer",
+                boxShadow: "0 1px 3px rgba(139,23,48,0.08)",
+                transition: "all 0.15s ease",
+              }}
+              title="Connect Mobile Phone or Other Computers to this Lab"
+            >
+              <QrCode size={15} color="#8b1730" />
+              <span>📱 Connect Phone / PC</span>
+            </button>
+
             <div
               onClick={() => setShowSyncModal(true)}
               style={{
@@ -1677,7 +1747,7 @@ function Layout({
                 boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
                 cursor: "pointer",
               }}
-              title="Click to configure Multi-PC & Mobile Central Sync"
+              title="Click to view Real-time Multi-Device Sync status"
             >
               <span
                 style={{
@@ -1688,7 +1758,7 @@ function Layout({
                   boxShadow: syncStatus.isConnected ? "0 0 8px #10B981" : "none"
                 }}
               />
-              <span>{syncStatus.isConnected ? "Live Multi-PC Synced" : "Connecting..."}</span>
+              <span>{syncStatus.isConnected ? "🟢 Live Multi-PC Synced" : "🟡 Offline / Connecting"}</span>
             </div>
 
             <div className="topuser">
@@ -1718,10 +1788,63 @@ function Layout({
 }
 
 function SyncConfigModal({ syncStatus, onClose, onToast }) {
+  const [activeTab, setActiveTab] = useState("mobile"); // "mobile" | "pc" | "public" | "lifetime"
+  const [mobileMode, setMobileMode] = useState("wifi"); // "wifi" | "public"
   const [customUrl, setCustomUrl] = useState(() => getCustomApiBase());
+  const [publicUrl, setPublicUrl] = useState(() => localStorage.getItem("taz_public_url") || "https://taz-diagnostics.onrender.com");
   const [isTesting, setIsTesting] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedCreds, setCopiedCreds] = useState(false);
+  const [copiedTunnel, setCopiedTunnel] = useState(false);
+  const [networkInfo, setNetworkInfo] = useState(null);
+  const [isBackingUp, setIsBackingUp] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
+  const fileInputRef = useRef(null);
 
-  const handleSave = async (url) => {
+  useEffect(() => {
+    fetchNetworkInfo().then((info) => {
+      if (info) setNetworkInfo(info);
+    });
+  }, []);
+
+  const resolvedHost = networkInfo?.localIps?.[0] || "192.168.31.166";
+  const localMobileUrl = networkInfo?.mobileUrl || (
+    window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1"
+      ? window.location.origin
+      : `http://${resolvedHost}:5000`
+  );
+
+  const activeMobileUrl = mobileMode === "public" && publicUrl.trim() ? publicUrl.trim().replace(/\/$/, "") : localMobileUrl;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(activeMobileUrl)}`;
+
+  const handleCopyLink = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(activeMobileUrl);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+      onToast?.("Mobile link copied to clipboard!");
+    }
+  };
+
+  const handleCopyCreds = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText("Username: Taz@18\nPassword: Sofiya@2010");
+      setCopiedCreds(true);
+      setTimeout(() => setCopiedCreds(false), 2000);
+      onToast?.("Login credentials copied!");
+    }
+  };
+
+  const handleCopyTunnelCmd = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText("npx localtunnel --port 5000");
+      setCopiedTunnel(true);
+      setTimeout(() => setCopiedTunnel(false), 2000);
+      onToast?.("Tunnel command copied to clipboard!");
+    }
+  };
+
+  const handleSaveUrl = async (url) => {
     setCustomApiBase(url);
     setIsTesting(true);
     try {
@@ -1735,89 +1858,684 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
     }
   };
 
-  const setPreset = (url) => {
-    setCustomUrl(url);
-    handleSave(url);
+  const handleSavePublicUrl = (url) => {
+    setPublicUrl(url);
+    localStorage.setItem("taz_public_url", url);
+    onToast?.("Public Cloud URL saved! Mobile QR code updated.");
+  };
+
+  const handleDownloadBackup = async () => {
+    setIsBackingUp(true);
+    try {
+      await downloadLifetimeBackup();
+      onToast?.("Full Lab Lifetime Backup downloaded successfully!");
+    } catch (e) {
+      onToast?.("Backup failed: " + e.message);
+    } finally {
+      setIsBackingUp(false);
+    }
+  };
+
+  const handleFileRestore = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!window.confirm("Restoring from this backup will merge and update all patient, report, and billing records. Do you want to proceed?")) {
+      e.target.value = "";
+      return;
+    }
+    setIsRestoring(true);
+    try {
+      await restoreLifetimeBackup(file);
+      onToast?.("Database restored successfully! All records refreshed.");
+      setTimeout(() => window.location.reload(), 1200);
+    } catch (err) {
+      onToast?.("Restore failed: " + err.message);
+    } finally {
+      setIsRestoring(false);
+      e.target.value = "";
+    }
   };
 
   return (
-    <div className="modalshade" style={{ zIndex: 1000 }}>
-      <div className="modal" style={{ maxWidth: "520px" }}>
-        <div className="modalhead">
-          <h3 style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <Activity size={18} color="#0e5a3a" /> Multi-PC & Mobile Central Sync
-          </h3>
-          <button type="button" className="close" onClick={onClose}>×</button>
+    <div className="modalshade" style={{ zIndex: 1000 }} onClick={onClose}>
+      <div
+        className="modal"
+        style={{ maxWidth: "660px", maxHeight: "92vh", display: "flex", flexDirection: "column" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="modalhead" style={{ borderBottom: "1px solid #E5E7EB", paddingBottom: "12px" }}>
+          <div>
+            <h3 style={{ display: "flex", alignItems: "center", gap: "8px", margin: 0, color: "#064E3B", fontSize: "17px" }}>
+              <Activity size={20} color="#059669" />
+              Multi-Device Live Sync & Public Access Center
+            </h3>
+            <span style={{ fontSize: "12px", color: "#6B7280" }}>
+              Connect Mobile Phones, Multi-PC LAN, Free 24/7 Cloud & Lifetime Offline Backup
+            </span>
+          </div>
+          <button type="button" className="close" onClick={onClose} style={{ fontSize: "22px" }}>×</button>
         </div>
 
-        <div style={{ padding: "16px 0", fontSize: "13px", lineHeight: "1.6", color: "#374151" }}>
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            padding: "10px 14px",
-            borderRadius: "8px",
-            backgroundColor: syncStatus.isConnected ? "#ECFDF5" : "#FEF3C7",
-            border: `1px solid ${syncStatus.isConnected ? "#A7F3D0" : "#FDE68A"}`,
-            marginBottom: "16px"
-          }}>
-            <span style={{
-              width: "10px",
-              height: "10px",
-              borderRadius: "50%",
-              backgroundColor: syncStatus.isConnected ? "#10B981" : "#F59E0B"
-            }} />
-            <div>
-              <strong>Status: {syncStatus.isConnected ? "🟢 Connected to Central Server" : "🟡 Disconnected / Local Mode"}</strong>
-              <div style={{ fontSize: "11px", color: "#6B7280" }}>
-                Active Server: <code>{syncStatus.apiBase || "None"}</code>
+        {/* Tab Navigation */}
+        <div style={{
+          display: "flex",
+          borderBottom: "1px solid #E5E7EB",
+          backgroundColor: "#F9FAFB",
+          padding: "4px 8px 0",
+          overflowX: "auto"
+        }}>
+          <button
+            type="button"
+            onClick={() => setActiveTab("mobile")}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "10px 14px",
+              border: "none",
+              borderBottom: activeTab === "mobile" ? "3px solid #059669" : "3px solid transparent",
+              backgroundColor: "transparent",
+              color: activeTab === "mobile" ? "#064E3B" : "#6B7280",
+              fontWeight: activeTab === "mobile" ? "700" : "500",
+              fontSize: "13px",
+              cursor: "pointer",
+              whiteSpace: "nowrap"
+            }}
+          >
+            <Smartphone size={16} />
+            📱 Mobile (QR Code)
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("pc")}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "10px 14px",
+              border: "none",
+              borderBottom: activeTab === "pc" ? "3px solid #059669" : "3px solid transparent",
+              backgroundColor: "transparent",
+              color: activeTab === "pc" ? "#064E3B" : "#6B7280",
+              fontWeight: activeTab === "pc" ? "700" : "500",
+              fontSize: "13px",
+              cursor: "pointer",
+              whiteSpace: "nowrap"
+            }}
+          >
+            <Laptop size={16} />
+            💻 Multi-PC Setup
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("public")}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "10px 14px",
+              border: "none",
+              borderBottom: activeTab === "public" ? "3px solid #059669" : "3px solid transparent",
+              backgroundColor: "transparent",
+              color: activeTab === "public" ? "#064E3B" : "#6B7280",
+              fontWeight: activeTab === "public" ? "700" : "500",
+              fontSize: "13px",
+              cursor: "pointer",
+              whiteSpace: "nowrap"
+            }}
+          >
+            <Globe size={16} />
+            🌐 Public Cloud & Remote
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("lifetime")}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "10px 14px",
+              border: "none",
+              borderBottom: activeTab === "lifetime" ? "3px solid #059669" : "3px solid transparent",
+              backgroundColor: "transparent",
+              color: activeTab === "lifetime" ? "#064E3B" : "#6B7280",
+              fontWeight: activeTab === "lifetime" ? "700" : "500",
+              fontSize: "13px",
+              cursor: "pointer",
+              whiteSpace: "nowrap"
+            }}
+          >
+            <ShieldCheck size={16} />
+            🛡️ Lifetime Protection
+          </button>
+        </div>
+
+        {/* Tab Content */}
+        <div style={{ padding: "18px 20px", overflowY: "auto", flex: 1, fontSize: "13px", lineHeight: "1.5" }}>
+
+          {/* TAB 1: MOBILE PHONE */}
+          {activeTab === "mobile" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div style={{
+                backgroundColor: "#ECFDF5",
+                border: "1px solid #A7F3D0",
+                borderRadius: "10px",
+                padding: "12px 14px",
+                display: "flex",
+                alignItems: "flex-start",
+                gap: "10px"
+              }}>
+                <Wifi size={20} color="#059669" style={{ flexShrink: 0, marginTop: "2px" }} />
+                <div>
+                  <strong style={{ color: "#065F46", fontSize: "13px" }}>
+                    Live Real-Time Two-Way Mobile & PC Synchronization
+                  </strong>
+                  <div style={{ fontSize: "12px", color: "#047857", marginTop: "3px" }}>
+                    Whatever you enter or change on your mobile (patients, test results, bills) will appear on your PC instantly. And whatever you change on your PC updates on your phone in real time!
+                  </div>
+                </div>
+              </div>
+
+              {/* Mode Switcher: Clinic Wi-Fi vs Public Cloud */}
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "8px 12px",
+                backgroundColor: "#F3F4F6",
+                borderRadius: "8px"
+              }}>
+                <span style={{ fontWeight: "700", color: "#374151", fontSize: "12px" }}>
+                  Active Mobile Connection Mode:
+                </span>
+                <div style={{ display: "flex", gap: "6px" }}>
+                  <button
+                    type="button"
+                    onClick={() => setMobileMode("wifi")}
+                    style={{
+                      padding: "5px 12px",
+                      borderRadius: "6px",
+                      border: "none",
+                      backgroundColor: mobileMode === "wifi" ? "#059669" : "#E5E7EB",
+                      color: mobileMode === "wifi" ? "#FFFFFF" : "#4B5563",
+                      fontWeight: "600",
+                      fontSize: "12px",
+                      cursor: "pointer"
+                    }}
+                  >
+                    🏢 Clinic Wi-Fi ({resolvedHost})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMobileMode("public")}
+                    style={{
+                      padding: "5px 12px",
+                      borderRadius: "6px",
+                      border: "none",
+                      backgroundColor: mobileMode === "public" ? "#059669" : "#E5E7EB",
+                      color: mobileMode === "public" ? "#FFFFFF" : "#4B5563",
+                      fontWeight: "600",
+                      fontSize: "12px",
+                      cursor: "pointer"
+                    }}
+                  >
+                    🌐 Public Internet / Remote
+                  </button>
+                </div>
+              </div>
+
+              {/* QR Code and Quick Link Section */}
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "20px",
+                padding: "16px",
+                backgroundColor: "#F9FAFB",
+                borderRadius: "12px",
+                border: "1px solid #E5E7EB",
+                flexWrap: "wrap",
+                justifyContent: "center"
+              }}>
+                <div style={{
+                  padding: "10px",
+                  backgroundColor: "#FFFFFF",
+                  borderRadius: "12px",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                  border: "1px solid #E5E7EB",
+                  textAlign: "center"
+                }}>
+                  <img
+                    src={qrCodeUrl}
+                    alt="Mobile Access QR Code"
+                    style={{ width: "160px", height: "160px", display: "block" }}
+                  />
+                  <div style={{ fontSize: "11px", color: "#4B5563", marginTop: "6px", fontWeight: "600" }}>
+                    Scan with Phone Camera
+                  </div>
+                </div>
+
+                <div style={{ flex: "1 1 240px", display: "flex", flexDirection: "column", gap: "10px" }}>
+                  <div>
+                    <label style={{ fontSize: "11px", fontWeight: "700", textTransform: "uppercase", color: "#6B7280" }}>
+                      Direct Mobile Link ({mobileMode === "public" ? "🌐 Public Internet" : "🏢 Clinic Wi-Fi"}):
+                    </label>
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      marginTop: "4px"
+                    }}>
+                      <input
+                        readOnly
+                        value={activeMobileUrl}
+                        style={{
+                          flex: 1,
+                          padding: "8px 10px",
+                          borderRadius: "6px",
+                          border: "1px solid #D1D5DB",
+                          backgroundColor: "#FFFFFF",
+                          fontSize: "13px",
+                          fontWeight: "600",
+                          color: "#111827"
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleCopyLink}
+                        style={{
+                          padding: "8px 12px",
+                          borderRadius: "6px",
+                          border: "1px solid #10B981",
+                          backgroundColor: copiedLink ? "#10B981" : "#ECFDF5",
+                          color: copiedLink ? "#FFFFFF" : "#065F46",
+                          fontWeight: "600",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "4px"
+                        }}
+                        title="Copy link to clipboard"
+                      >
+                        {copiedLink ? <Check size={14} /> : <Copy size={14} />}
+                        {copiedLink ? "Copied!" : "Copy"}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Credentials helper */}
+                  <div style={{
+                    padding: "10px 12px",
+                    backgroundColor: "#EFF6FF",
+                    border: "1px solid #BFDBFE",
+                    borderRadius: "8px"
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: "11px", fontWeight: "700", color: "#1E40AF" }}>
+                        🔑 Mobile Login Details:
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleCopyCreds}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          color: "#2563EB",
+                          fontSize: "11px",
+                          cursor: "pointer",
+                          fontWeight: "600",
+                          textDecoration: "underline"
+                        }}
+                      >
+                        {copiedCreds ? "Copied!" : "Copy Details"}
+                      </button>
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#1E3A8A", marginTop: "4px" }}>
+                      Username: <b>Taz@18</b> &nbsp;|&nbsp; Password: <b>Sofiya@2010</b>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Instructions list */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <strong style={{ color: "#374151" }}>How to connect your phone in 10 seconds:</strong>
+                <ol style={{ margin: 0, paddingLeft: "20px", display: "flex", flexDirection: "column", gap: "6px", color: "#4B5563" }}>
+                  <li>{mobileMode === "wifi" ? "Ensure your phone is connected to your clinic Wi-Fi (or your PC's Mobile Hotspot)." : "Ensure your phone has active mobile data (4G/5G) or Wi-Fi anywhere in the world."}</li>
+                  <li>Open your phone's Camera app and point it at the QR code above, or open <b>{activeMobileUrl}</b> in Google Chrome / Safari.</li>
+                  <li>Sign in using <b>Taz@18</b> / <b>Sofiya@2010</b>.</li>
+                  <li>💡 <i>Tip:</i> On your phone browser menu, tap <b>"Add to Home screen"</b> to use it as a full-screen app!</li>
+                </ol>
               </div>
             </div>
-          </div>
+          )}
 
-          <label style={{ fontWeight: "700", display: "block", marginBottom: "6px" }}>
-            Central Server URL / Endpoint:
-          </label>
-          <input
-            style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", border: "1px solid #D1D5DB", marginBottom: "10px" }}
-            value={customUrl}
-            placeholder="e.g. http://192.168.31.166:5000/api or https://taz-diagnostics.onrender.com/api"
-            onChange={(e) => setCustomUrl(e.target.value)}
-          />
+          {/* TAB 2: MULTI-PC SETUP */}
+          {activeTab === "pc" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                padding: "10px 14px",
+                borderRadius: "8px",
+                backgroundColor: syncStatus.isConnected ? "#ECFDF5" : "#FEF3C7",
+                border: `1px solid ${syncStatus.isConnected ? "#A7F3D0" : "#FDE68A"}`
+              }}>
+                <span style={{
+                  width: "10px",
+                  height: "10px",
+                  borderRadius: "50%",
+                  backgroundColor: syncStatus.isConnected ? "#10B981" : "#F59E0B"
+                }} />
+                <div>
+                  <strong>Status: {syncStatus.isConnected ? "🟢 Central Hub Connected" : "🟡 Disconnected / Local Mode"}</strong>
+                  <div style={{ fontSize: "11px", color: "#6B7280" }}>
+                    Active Server Endpoint: <code>{syncStatus.apiBase || "None"}</code>
+                  </div>
+                </div>
+              </div>
 
-          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
-            <button
-              type="button"
-              className="role-chip"
-              onClick={() => setPreset("http://192.168.31.166:5000/api")}
-              title="Connect all PCs on clinic Wi-Fi to this computer"
-            >
-              🏢 Clinic Wi-Fi (192.168.31.166)
-            </button>
-            <button
-              type="button"
-              className="role-chip"
-              onClick={() => setPreset("https://taz-diagnostics.onrender.com/api")}
-              title="Connect 24/7 via cloud backend"
-            >
-              ☁️ Cloud Backend (Render)
-            </button>
-            <button
-              type="button"
-              className="role-chip"
-              onClick={() => { setCustomUrl(""); handleSave(""); }}
-              title="Auto-detect based on current hostname"
-            >
-              🔄 Auto-Detect
-            </button>
-          </div>
+              <div>
+                <label style={{ fontWeight: "700", display: "block", marginBottom: "6px" }}>
+                  Central Server URL / Endpoint:
+                </label>
+                <input
+                  style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", border: "1px solid #D1D5DB", marginBottom: "10px" }}
+                  value={customUrl}
+                  placeholder="e.g. http://192.168.31.166:5000/api"
+                  onChange={(e) => setCustomUrl(e.target.value)}
+                />
 
-          <p style={{ fontSize: "12px", color: "#6B7280", margin: "0 0 16px" }}>
-            💡 <b>How Multi-PC works:</b> Run the central server on your main clinic PC (<code>npm run server</code> or port 5000). All other lab computers and mobile phones on the clinic Wi-Fi or public link will immediately synchronize patients, reports, and bills in real-time.
-          </p>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
+                  <button
+                    type="button"
+                    className="role-chip"
+                    onClick={() => {
+                      const url = `http://${resolvedHost}:5000/api`;
+                      setCustomUrl(url);
+                      handleSaveUrl(url);
+                    }}
+                    title="Connect all PCs on clinic Wi-Fi to this computer"
+                  >
+                    🏢 Clinic Wi-Fi ({resolvedHost}:5000)
+                  </button>
+                  <button
+                    type="button"
+                    className="role-chip"
+                    onClick={() => {
+                      const url = "https://taz-diagnostics.onrender.com/api";
+                      setCustomUrl(url);
+                      handleSaveUrl(url);
+                    }}
+                    title="Connect 24/7 via cloud backend"
+                  >
+                    ☁️ Cloud Backend (Render)
+                  </button>
+                  <button
+                    type="button"
+                    className="role-chip"
+                    onClick={() => {
+                      setCustomUrl("");
+                      handleSaveUrl("");
+                    }}
+                    title="Auto-detect based on current hostname"
+                  >
+                    🔄 Auto-Detect
+                  </button>
+                </div>
+              </div>
 
-          <div className="formactions" style={{ justifyContent: "space-between" }}>
-            <Button onClick={async () => {
+              <div style={{
+                backgroundColor: "#F3F4F6",
+                borderRadius: "8px",
+                padding: "12px 14px",
+                fontSize: "12px",
+                color: "#374151"
+              }}>
+                <strong style={{ display: "block", marginBottom: "6px" }}>💻 Connecting Receptionist & Doctor Cabin PCs:</strong>
+                <ol style={{ margin: 0, paddingLeft: "18px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <li>Keep this main PC running with the server on (port 5000).</li>
+                  <li>On any other PC in the clinic connected to the same Wi-Fi, open Google Chrome or Microsoft Edge.</li>
+                  <li>Navigate to: <b>{localMobileUrl}</b></li>
+                  <li>All PCs will automatically synchronize patients, lab reports, test configurations, and billing in real time!</li>
+                </ol>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: PUBLIC CLOUD & REMOTE ACCESS */}
+          {activeTab === "public" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div style={{
+                backgroundColor: "#EFF6FF",
+                border: "1px solid #BFDBFE",
+                borderRadius: "10px",
+                padding: "14px",
+                display: "flex",
+                gap: "12px"
+              }}>
+                <Globe size={28} color="#2563EB" style={{ flexShrink: 0 }} />
+                <div>
+                  <strong style={{ color: "#1E40AF", fontSize: "14px" }}>
+                    Public Internet & Remote Clinic Access
+                  </strong>
+                  <div style={{ color: "#1E3A8A", fontSize: "12px", marginTop: "4px", lineHeight: "1.5" }}>
+                    Make your lab portal accessible to doctors, technicians, and patients from anywhere in the world — on 4G/5G mobile, home computers, or multiple clinic branches.
+                  </div>
+                </div>
+              </div>
+
+              {/* Set Public URL */}
+              <div style={{
+                padding: "14px",
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E5E7EB",
+                borderRadius: "10px"
+              }}>
+                <label style={{ fontWeight: "700", display: "block", marginBottom: "6px", color: "#111827" }}>
+                  Your Public Cloud / Custom Domain URL:
+                </label>
+                <div style={{ display: "flex", gap: "6px" }}>
+                  <input
+                    style={{ flex: 1, padding: "8px 12px", borderRadius: "6px", border: "1px solid #D1D5DB" }}
+                    value={publicUrl}
+                    placeholder="https://taz-diagnostics.onrender.com or your custom domain"
+                    onChange={(e) => setPublicUrl(e.target.value)}
+                  />
+                  <Button primary onClick={() => handleSavePublicUrl(publicUrl)}>
+                    Save URL
+                  </Button>
+                </div>
+                <div style={{ fontSize: "11px", color: "#6B7280", marginTop: "6px" }}>
+                  Setting this URL updates the QR Code on the Mobile Tab so phones outside the clinic Wi-Fi can scan & connect!
+                </div>
+              </div>
+
+              {/* Method 1: Instant Free Remote Tunnel */}
+              <div style={{
+                padding: "14px",
+                backgroundColor: "#F9FAFB",
+                border: "1px solid #E5E7EB",
+                borderRadius: "10px"
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <strong style={{ color: "#111827" }}>⚡ Option 1: Instant Free Remote Tunnel (Zero Cloud Setup)</strong>
+                  <button
+                    type="button"
+                    onClick={handleCopyTunnelCmd}
+                    style={{
+                      padding: "4px 10px",
+                      borderRadius: "6px",
+                      border: "1px solid #D1D5DB",
+                      backgroundColor: copiedTunnel ? "#10B981" : "#FFFFFF",
+                      color: copiedTunnel ? "#FFFFFF" : "#374151",
+                      fontSize: "11px",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px"
+                    }}
+                  >
+                    {copiedTunnel ? <Check size={12} /> : <Copy size={12} />}
+                    {copiedTunnel ? "Copied!" : "Copy Command"}
+                  </button>
+                </div>
+                <p style={{ fontSize: "12px", color: "#4B5563", margin: "6px 0 10px" }}>
+                  Want to access this PC from home or on your phone right now without setting up servers? Run this command in a terminal on this computer:
+                </p>
+                <div style={{
+                  padding: "8px 12px",
+                  backgroundColor: "#1F2937",
+                  color: "#10B981",
+                  borderRadius: "6px",
+                  fontFamily: "monospace",
+                  fontSize: "12px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between"
+                }}>
+                  <code>npx localtunnel --port 5000</code>
+                </div>
+                <div style={{ fontSize: "11px", color: "#6B7280", marginTop: "6px" }}>
+                  You will instantly receive an encrypted <code>https://...loca.lt</code> link that you can open from any mobile phone or computer on Earth!
+                </div>
+              </div>
+
+              {/* Method 2: 100% Free 24/7 Hosting on Render */}
+              <div style={{
+                padding: "14px",
+                backgroundColor: "#F9FAFB",
+                border: "1px solid #E5E7EB",
+                borderRadius: "10px"
+              }}>
+                <strong style={{ color: "#111827", display: "block", marginBottom: "6px" }}>
+                  ☁️ Option 2: Turnkey 24/7 Free Cloud Hosting (Render / Railway)
+                </strong>
+                <ol style={{ margin: 0, paddingLeft: "18px", display: "flex", flexDirection: "column", gap: "4px", color: "#4B5563", fontSize: "12px" }}>
+                  <li>We have already created <code>render.yaml</code>, <code>Procfile</code>, and root <code>package.json</code> in this project.</li>
+                  <li>Push this repository to your GitHub account (<code>git push</code>).</li>
+                  <li>Go to <b>render.com</b> or <b>railway.app</b>, select "New Web Service", and connect your repository.</li>
+                  <li>Your software is automatically built and deployed live at <code>https://your-lab.onrender.com</code> with free HTTPS SSL and 24/7 uptime!</li>
+                </ol>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: LIFETIME PROTECTION & BACKUPS */}
+          {activeTab === "lifetime" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div style={{
+                backgroundColor: "#ECFDF5",
+                border: "1px solid #10B981",
+                borderRadius: "10px",
+                padding: "14px",
+                display: "flex",
+                gap: "12px"
+              }}>
+                <ShieldCheck size={28} color="#059669" style={{ flexShrink: 0 }} />
+                <div>
+                  <strong style={{ color: "#065F46", fontSize: "14px" }}>
+                    Lifetime Durability & Zero Expiration Guarantee
+                  </strong>
+                  <div style={{ color: "#047857", fontSize: "12px", marginTop: "4px", lineHeight: "1.5" }}>
+                    Your software is designed to run locally and offline on your computer forever. It has <b>zero monthly subscription fees</b>, <b>no expiry dates</b>, and will never lock you out. All records are stored securely on your local disk.
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Cards */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                {/* 1-Click Backup */}
+                <div style={{
+                  padding: "14px",
+                  backgroundColor: "#FFFFFF",
+                  border: "1px solid #E5E7EB",
+                  borderRadius: "10px",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.05)"
+                }}>
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: "700", color: "#1F2937", marginBottom: "6px" }}>
+                      <Download size={16} color="#059669" />
+                      1-Click Full Lab Backup
+                    </div>
+                    <p style={{ fontSize: "12px", color: "#6B7280", margin: "0 0 12px" }}>
+                      Downloads all Patients, Test Master (with all reference ranges & formulas), Reports, and Bills into a single lifetime <code>.json</code> file.
+                    </p>
+                  </div>
+                  <Button
+                    primary
+                    onClick={handleDownloadBackup}
+                    disabled={isBackingUp}
+                    style={{ width: "100%", justifyContent: "center" }}
+                  >
+                    {isBackingUp ? "Downloading..." : "📥 Download Full Backup"}
+                  </Button>
+                </div>
+
+                {/* 1-Click Restore */}
+                <div style={{
+                  padding: "14px",
+                  backgroundColor: "#FFFFFF",
+                  border: "1px solid #E5E7EB",
+                  borderRadius: "10px",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.05)"
+                }}>
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: "700", color: "#1F2937", marginBottom: "6px" }}>
+                      <Upload size={16} color="#2563EB" />
+                      Restore From Backup
+                    </div>
+                    <p style={{ fontSize: "12px", color: "#6B7280", margin: "0 0 12px" }}>
+                      Migrate to a new computer or recover everything in 5 seconds by selecting any previously downloaded lab backup file.
+                    </p>
+                  </div>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept=".json"
+                    style={{ display: "none" }}
+                    onChange={handleFileRestore}
+                  />
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isRestoring}
+                    style={{ width: "100%", justifyContent: "center" }}
+                  >
+                    {isRestoring ? "Restoring..." : "📤 Restore Database File"}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Automatic daily snapshots note */}
+              <div style={{
+                padding: "10px 14px",
+                backgroundColor: "#F9FAFB",
+                border: "1px solid #E5E7EB",
+                borderRadius: "8px",
+                fontSize: "12px",
+                color: "#4B5563"
+              }}>
+                <b>🛡️ Automated Daily Disk Snapshots:</b> Whenever changes occur, the server automatically archives daily snapshots into <code>server/data/backups/</code>. You can copy this folder to a USB flash drive anytime for extra peace of mind!
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Modal Footer */}
+        <div className="modalfoot" style={{ borderTop: "1px solid #E5E7EB", padding: "12px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Button
+            onClick={async () => {
               setIsTesting(true);
               try {
                 await pullAllFromBackend(true);
@@ -1828,11 +2546,20 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
               } finally {
                 setIsTesting(false);
               }
-            }} disabled={isTesting}>
-              {isTesting ? "Syncing..." : "🔄 Sync All Data Now"}
-            </Button>
-            <Button primary onClick={() => { handleSave(customUrl); onClose(); }}>
-              Save & Connect
+            }}
+            disabled={isTesting}
+          >
+            {isTesting ? "Syncing..." : "🔄 Sync All Data Now"}
+          </Button>
+
+          <div style={{ display: "flex", gap: "8px" }}>
+            {activeTab === "pc" && (
+              <Button primary onClick={() => { handleSaveUrl(customUrl); onClose(); }}>
+                Save & Connect
+              </Button>
+            )}
+            <Button onClick={onClose}>
+              Close
             </Button>
           </div>
         </div>
@@ -2523,13 +3250,62 @@ const CLINICAL_PROFILES = [
     ],
   },
   {
+    id: "PKG_LFT",
+    name: "Liver Function Test",
+    fullname: "Liver Function Test (LFT)",
+    desc: "10 Tests: Total Bilirubin, Direct, Indirect, SGPT, SGOT, Alk Phos, Proteins, Albumin, Globulin, A/G Ratio",
+    category: "Liver Function Test",
+    badge: "10 Tests",
+    icon: "🫀",
+    testIds: [
+      "TST072", "TST073", "TST074", "TST075", "TST076",
+      "TST077", "TST078", "TST079", "TST080", "TST081"
+    ],
+  },
+  {
+    id: "PKG_LIPID",
+    name: "Lipid Profile",
+    fullname: "Lipid Profile Panel",
+    desc: "6 Tests: Total Cholesterol, HDL, Triglycerides, LDL, VLDL, LDL/HDL",
+    category: "Lipid Profile",
+    badge: "6 Tests",
+    icon: "🩺",
+    testIds: [
+      "TST083", "TST084", "TST085", "TST086", "TST087", "TST088"
+    ],
+  },
+  {
+    id: "PKG_ELECTROLYTES",
+    name: "Electrolytes",
+    fullname: "Serum Electrolytes Panel",
+    desc: "4 Tests: Sodium, Potassium, Chloride, Calcium",
+    category: "Electrolytes",
+    badge: "4 Tests",
+    icon: "⚡",
+    testIds: [
+      "TST090", "TST091", "TST092", "TST093"
+    ],
+  },
+  {
+    id: "PKG_HBA1C",
+    name: "HBA1C",
+    fullname: "Glycosylated Haemoglobin (HBA1C)",
+    desc: "2 Tests: Glycosylated Haemoglobin(HBA1C), Mean Blood Glucose",
+    category: "HBA1C",
+    badge: "2 Tests",
+    icon: "🩸",
+    testIds: [
+      "TST094", "TST095"
+    ],
+  },
+  {
     id: "PKG_RENAL",
     name: "Biochem / Renal",
     fullname: "Renal Function & Biochem",
     desc: "6 Tests: Fasting Glucose, Urea, Creatinine, Cholesterol, Bilirubin Total",
     category: "Bio Chemistry",
     badge: "6 Tests",
-    icon: "⚡",
+    icon: "💧",
     testIds: ["TST037", "TST040", "TST041", "TST042", "TST043", "TST044"],
   },
   {
@@ -2541,16 +3317,6 @@ const CLINICAL_PROFILES = [
     badge: "3 Tests",
     icon: "🍬",
     testIds: ["TST037", "TST039", "TST071"],
-  },
-  {
-    id: "PKG_LIPID",
-    name: "Lipid & Cardiac",
-    fullname: "Lipid & Cardiac Screening",
-    desc: "2 Tests: Serum Cholesterol, CRP (C-Reactive Protein)",
-    category: "Bio Chemistry",
-    badge: "2 Tests",
-    icon: "🩺",
-    testIds: ["TST042", "TST070"],
   },
   {
     id: "PKG_MOTION",
@@ -2588,6 +3354,10 @@ function ManageTestsModal({ patient, tests, onClose, onSave }) {
     "Clinical Pathology",
     "Urine Examinations",
     "Bio Chemistry",
+    "Liver Function Test",
+    "Lipid Profile",
+    "Electrolytes",
+    "HBA1C",
     "Motion Examination",
     "Semen Analysis",
     "Additional Tests",
@@ -2875,6 +3645,10 @@ function PatientEntry({ navigate, onToast }) {
     "Clinical Pathology",
     "Urine Examinations",
     "Bio Chemistry",
+    "Liver Function Test",
+    "Lipid Profile",
+    "Electrolytes",
+    "HBA1C",
     "Motion Examination",
     "Semen Analysis",
     "Additional Tests",
@@ -4114,12 +4888,24 @@ function TestManagement({ navigate, onToast }) {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [editingTest, setEditingTest] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [showAdd, setShowAdd] = useState(false);
+  const [addForm, setAddForm] = useState({
+    name: "",
+    category: "Clinical Pathology",
+    unit: "",
+    reference: "",
+    price: "",
+  });
 
   const categories = [
     "All",
     "Clinical Pathology",
     "Urine Examinations",
     "Bio Chemistry",
+    "Liver Function Test",
+    "Lipid Profile",
+    "Electrolytes",
+    "HBA1C",
     "Motion Examination",
     "Semen Analysis",
     "Additional Tests",
@@ -4157,10 +4943,41 @@ function TestManagement({ navigate, onToast }) {
     onToast("Test removed from catalog.");
   }
 
+  function saveAdd(e) {
+    e.preventDefault();
+    if (!addForm.name) return;
+
+    const newTest = {
+      id: nextId("TST", tests),
+      name: addForm.name.trim(),
+      category: addForm.category,
+      unit: addForm.unit.trim(),
+      reference: addForm.reference ? addForm.reference.trim() : "",
+      price: Number(addForm.price || 0),
+      status: "Active",
+      updatedAt: new Date().toISOString()
+    };
+
+    const next = [...tests, newTest];
+    setTests(next);
+    setAddForm({ name: "", category: "Clinical Pathology", unit: "", reference: "", price: "" });
+    setShowAdd(false);
+    onToast(`Test "${newTest.name}" (${newTest.id}) created & saved!`);
+  }
+
   function saveEdit(e) {
     e.preventDefault();
     if (!editingTest) return;
-    const next = tests.map((t) => (t.id === editingTest.id ? { ...editingTest, updatedAt: new Date().toISOString() } : t));
+    const next = tests.map((t) =>
+      t.id === editingTest.id
+        ? {
+            ...editingTest,
+            reference: editingTest.reference ? String(editingTest.reference).trim() : "",
+            price: Number(editingTest.price || 0),
+            updatedAt: new Date().toISOString()
+          }
+        : t
+    );
     setTests(next);
     setEditingTest(null);
     onToast(`Test "${editingTest.name}" updated successfully!`);
@@ -4172,8 +4989,11 @@ function TestManagement({ navigate, onToast }) {
         title="Test Management"
         subtitle="Manage laboratory test offerings, active status, and catalog."
       >
+        <Button id="btn-add-test-mgmt" onClick={() => setShowAdd(true)}>
+          <Plus size={16} /> Add Test
+        </Button>
         <Button primary onClick={() => navigate("/test-master")}>
-          <Plus size={16} /> Open Test Master
+          <ClipboardList size={16} /> Open Test Master
         </Button>
       </PageHeader>
 
@@ -4271,7 +5091,7 @@ function TestManagement({ navigate, onToast }) {
                   </td>
                   <td>{test.category}</td>
                   <td>{test.unit}</td>
-                  <td>{test.reference}</td>
+                  <td style={{ whiteSpace: "pre-line", lineHeight: "1.35", minWidth: 150 }}>{test.reference || "—"}</td>
                   <td>{test.price > 0 ? money(test.price) : "— —"}</td>
                   <td>
                     <button
@@ -4304,6 +5124,111 @@ function TestManagement({ navigate, onToast }) {
           </table>
         </div>
       </div>
+
+      {/* ADD TEST MODAL */}
+      {showAdd && (
+        <div className="modalshade">
+          <form className="modal" onSubmit={saveAdd}>
+            <div className="modalhead">
+              <h3>Add Laboratory Test</h3>
+              <button
+                type="button"
+                className="close"
+                onClick={() => setShowAdd(false)}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="formgrid">
+              <div className="field">
+                <label>Test Name *</label>
+                <input
+                  id="mgmt-test-name"
+                  required
+                  value={addForm.name}
+                  onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
+                  placeholder="e.g. Serum Creatinine"
+                />
+              </div>
+
+              <div className="field">
+                <label>Category *</label>
+                <select
+                  value={addForm.category}
+                  onChange={(e) => setAddForm({ ...addForm, category: e.target.value })}
+                >
+                  {categories.filter((c) => c !== "All").map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="field">
+                <label>Unit</label>
+                <input
+                  value={addForm.unit}
+                  onChange={(e) => setAddForm({ ...addForm, unit: e.target.value })}
+                  placeholder="e.g. mg/dL or g/dL"
+                />
+              </div>
+
+              <div className="field" style={{ gridColumn: "1 / -1" }}>
+                <label style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span>Reference Range</span>
+                  <span style={{ fontSize: "11px", color: "#8b1730", fontWeight: 600 }}>
+                    Press Enter for 2nd & 3rd lines
+                  </span>
+                </label>
+                <textarea
+                  id="mgmt-test-ref"
+                  rows={3}
+                  value={addForm.reference}
+                  onChange={(e) => setAddForm({ ...addForm, reference: e.target.value })}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.stopPropagation();
+                    }
+                  }}
+                  placeholder={"Line 1: Male: 14 - 17\nLine 2: Female: 12 - 15\nLine 3: Child: 11 - 14"}
+                  style={{
+                    width: "100%",
+                    minHeight: "78px",
+                    resize: "vertical",
+                    padding: "8px 10px",
+                    fontFamily: "inherit",
+                    fontSize: "13px",
+                    lineHeight: "1.45",
+                    borderRadius: "6px",
+                    border: "1px solid #d3c4c7",
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+
+              <div className="field">
+                <label>Price (₹) *</label>
+                <input
+                  id="mgmt-test-price"
+                  required
+                  type="number"
+                  min="0"
+                  value={addForm.price}
+                  onChange={(e) => setAddForm({ ...addForm, price: e.target.value })}
+                  placeholder="e.g. 250"
+                />
+              </div>
+            </div>
+
+            <div className="formactions">
+              <Button onClick={() => setShowAdd(false)}>Cancel</Button>
+              <Button id="mgmt-test-save-btn" primary type="submit">
+                <Check size={16} /> Save Test
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* EDIT TEST MODAL */}
       {editingTest && (
@@ -4358,11 +5283,34 @@ function TestManagement({ navigate, onToast }) {
               </div>
 
               <div className="field" style={{ gridColumn: "1 / -1" }}>
-                <label>Reference Range</label>
-                <input
+                <label style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span>Reference Range</span>
+                  <span style={{ fontSize: "11px", color: "#8b1730", fontWeight: 600 }}>
+                    Press Enter for 2nd & 3rd lines
+                  </span>
+                </label>
+                <textarea
+                  rows={3}
                   value={editingTest.reference || ""}
                   onChange={(e) => setEditingTest({ ...editingTest, reference: e.target.value })}
-                  placeholder="e.g. Male: 13.0 - 17.0, Female: 12.0 - 15.0"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.stopPropagation();
+                    }
+                  }}
+                  placeholder={"Line 1: Male: 14 - 17\nLine 2: Female: 12 - 15\nLine 3: Child: 11 - 14"}
+                  style={{
+                    width: "100%",
+                    minHeight: "78px",
+                    resize: "vertical",
+                    padding: "8px 10px",
+                    fontFamily: "inherit",
+                    fontSize: "13px",
+                    lineHeight: "1.45",
+                    borderRadius: "6px",
+                    border: "1px solid #d3c4c7",
+                    boxSizing: "border-box",
+                  }}
                 />
               </div>
 
@@ -4435,6 +5383,19 @@ function TestMaster({ onToast }) {
     price: "",
   });
 
+  const masterCategories = [
+    "Clinical Pathology",
+    "Urine Examinations",
+    "Bio Chemistry",
+    "Liver Function Test",
+    "Lipid Profile",
+    "Electrolytes",
+    "HBA1C",
+    "Motion Examination",
+    "Semen Analysis",
+    "Additional Tests",
+  ];
+
   function saveAdd(e) {
     e.preventDefault();
     if (!form.name) return;
@@ -4444,7 +5405,7 @@ function TestMaster({ onToast }) {
       name: form.name.trim(),
       category: form.category,
       unit: form.unit.trim(),
-      reference: form.reference.trim(),
+      reference: form.reference ? form.reference.trim() : "",
       price: Number(form.price || 0),
       status: "Active",
       updatedAt: new Date().toISOString()
@@ -4463,7 +5424,12 @@ function TestMaster({ onToast }) {
 
     const next = tests.map((t) =>
       t.id === editingTest.id
-        ? { ...editingTest, price: Number(editingTest.price || 0), updatedAt: new Date().toISOString() }
+        ? {
+            ...editingTest,
+            reference: editingTest.reference ? String(editingTest.reference).trim() : "",
+            price: Number(editingTest.price || 0),
+            updatedAt: new Date().toISOString()
+          }
         : t
     );
     setTests(next);
@@ -4496,7 +5462,7 @@ function TestMaster({ onToast }) {
         <Button onClick={resetToDefaultTests}>
           <RefreshCw size={16} /> Reset 71 Clinical Tests
         </Button>
-        <Button primary onClick={() => setShow(true)}>
+        <Button id="btn-add-test-master" primary onClick={() => setShow(true)}>
           <Plus size={16} /> Add Test
         </Button>
       </PageHeader>
@@ -4524,7 +5490,7 @@ function TestMaster({ onToast }) {
                   </td>
                   <td>{test.category}</td>
                   <td>{test.unit}</td>
-                  <td>{test.reference}</td>
+                  <td style={{ whiteSpace: "pre-line", lineHeight: "1.35", minWidth: 150 }}>{test.reference || "—"}</td>
                   <td>{test.price > 0 ? money(test.price) : "— —"}</td>
                   <td className="actions">
                     <button
@@ -4566,6 +5532,7 @@ function TestMaster({ onToast }) {
               <div className="field">
                 <label>Test Name *</label>
                 <input
+                  id="tm-test-name"
                   required
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -4579,12 +5546,9 @@ function TestMaster({ onToast }) {
                   value={form.category}
                   onChange={(e) => setForm({ ...form, category: e.target.value })}
                 >
-                  <option value="Clinical Pathology">Clinical Pathology</option>
-                  <option value="Urine Examinations">Urine Examinations</option>
-                  <option value="Bio Chemistry">Bio Chemistry</option>
-                  <option value="Motion Examination">Motion Examination</option>
-                  <option value="Semen Analysis">Semen Analysis</option>
-                  <option value="Additional Tests">Additional Tests</option>
+                  {masterCategories.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
                 </select>
               </div>
 
@@ -4597,20 +5561,46 @@ function TestMaster({ onToast }) {
                 />
               </div>
 
-              <div className="field">
-                <label>Reference Range</label>
-                <input
+              <div className="field" style={{ gridColumn: "1 / -1" }}>
+                <label style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span>Reference Range</span>
+                  <span style={{ fontSize: "11px", color: "#8b1730", fontWeight: 600 }}>
+                    Press Enter for 2nd & 3rd lines
+                  </span>
+                </label>
+                <textarea
+                  id="tm-test-ref"
+                  rows={3}
                   value={form.reference}
                   onChange={(e) => setForm({ ...form, reference: e.target.value })}
-                  placeholder="e.g. 0.7 - 1.3"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.stopPropagation();
+                    }
+                  }}
+                  placeholder={"Line 1: Male: 14 - 17\nLine 2: Female: 12 - 15\nLine 3: Child: 11 - 14"}
+                  style={{
+                    width: "100%",
+                    minHeight: "78px",
+                    resize: "vertical",
+                    padding: "8px 10px",
+                    fontFamily: "inherit",
+                    fontSize: "13px",
+                    lineHeight: "1.45",
+                    borderRadius: "6px",
+                    border: "1px solid #d3c4c7",
+                    boxSizing: "border-box",
+                  }}
                 />
               </div>
 
               <div className="field">
                 <label>Price (₹) *</label>
                 <input
+                  id="tm-test-price"
                   required
                   type="number"
+                  min="0"
                   value={form.price}
                   onChange={(e) => setForm({ ...form, price: e.target.value })}
                   placeholder="e.g. 250"
@@ -4620,7 +5610,7 @@ function TestMaster({ onToast }) {
 
             <div className="formactions">
               <Button onClick={() => setShow(false)}>Cancel</Button>
-              <Button primary type="submit">
+              <Button id="tm-test-save-btn" primary type="submit">
                 <Check size={16} /> Save Test
               </Button>
             </div>
@@ -4663,32 +5653,53 @@ function TestMaster({ onToast }) {
                     setEditingTest({ ...editingTest, category: e.target.value })
                   }
                 >
-                  <option value="Clinical Pathology">Clinical Pathology</option>
-                  <option value="Urine Examinations">Urine Examinations</option>
-                  <option value="Bio Chemistry">Bio Chemistry</option>
-                  <option value="Motion Examination">Motion Examination</option>
-                  <option value="Semen Analysis">Semen Analysis</option>
-                  <option value="Additional Tests">Additional Tests</option>
+                  {masterCategories.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
                 </select>
               </div>
 
               <div className="field">
                 <label>Unit</label>
                 <input
-                  value={editingTest.unit}
+                  value={editingTest.unit || ""}
                   onChange={(e) =>
                     setEditingTest({ ...editingTest, unit: e.target.value })
                   }
                 />
               </div>
 
-              <div className="field">
-                <label>Reference Range</label>
-                <input
-                  value={editingTest.reference}
+              <div className="field" style={{ gridColumn: "1 / -1" }}>
+                <label style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span>Reference Range</span>
+                  <span style={{ fontSize: "11px", color: "#8b1730", fontWeight: 600 }}>
+                    Press Enter for 2nd & 3rd lines
+                  </span>
+                </label>
+                <textarea
+                  rows={3}
+                  value={editingTest.reference || ""}
                   onChange={(e) =>
                     setEditingTest({ ...editingTest, reference: e.target.value })
                   }
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.stopPropagation();
+                    }
+                  }}
+                  placeholder={"Line 1: Male: 14 - 17\nLine 2: Female: 12 - 15\nLine 3: Child: 11 - 14"}
+                  style={{
+                    width: "100%",
+                    minHeight: "78px",
+                    resize: "vertical",
+                    padding: "8px 10px",
+                    fontFamily: "inherit",
+                    fontSize: "13px",
+                    lineHeight: "1.45",
+                    borderRadius: "6px",
+                    border: "1px solid #d3c4c7",
+                    boxSizing: "border-box",
+                  }}
                 />
               </div>
 
@@ -4697,6 +5708,7 @@ function TestMaster({ onToast }) {
                 <input
                   required
                   type="number"
+                  min="0"
                   value={editingTest.price}
                   onChange={(e) =>
                     setEditingTest({ ...editingTest, price: e.target.value })
@@ -4804,7 +5816,7 @@ function PatientHistory({ navigate, onToast }) {
             ${val} ${isAbnormal ? '<span style="font-size: 10px; color: #c4183c; font-weight: bold;">(ABNORMAL)</span>' : ''}
           </td>
           <td style="padding: 7px 10px; border-bottom: 1px solid #ddd; font-size: 12px;">${t.unit || "—"}</td>
-          <td style="padding: 7px 10px; border-bottom: 1px solid #ddd; font-size: 12px; color: #555;">${t.reference || "—"}</td>
+          <td style="padding: 7px 10px; border-bottom: 1px solid #ddd; font-size: 12px; color: #555; white-space: pre-line;">${(t.reference || "—").replace(/\n/g, '<br/>')}</td>
         </tr>
       `;
     }).join("");
@@ -5203,7 +6215,7 @@ function PatientHistory({ navigate, onToast }) {
                                     )}
                                   </td>
                                   <td>{t.unit || "—"}</td>
-                                  <td style={{ color: "#666" }}>{t.reference || "—"}</td>
+                                  <td style={{ color: "#666", whiteSpace: "pre-line", lineHeight: "1.35" }}>{t.reference || "—"}</td>
                                 </tr>
                               );
                             })}
@@ -5237,9 +6249,84 @@ function PatientHistory({ navigate, onToast }) {
    PAGE: REPORTS WORKFLOW & VIEWER
    ========================================================= */
 
-/* =========================================================
-   AUTHENTIC CLINICAL REPORT CONFIG & FORMATTERS (Page1.jpg)
-   ========================================================= */
+const CANONICAL_TEST_CATEGORIES = {
+  // LIVER FUNCTION TEST
+  "TST072": "Liver Function Test",
+  "TST073": "Liver Function Test",
+  "TST074": "Liver Function Test",
+  "TST075": "Liver Function Test",
+  "TST076": "Liver Function Test",
+  "TST077": "Liver Function Test",
+  "TST078": "Liver Function Test",
+  "TST079": "Liver Function Test",
+  "TST080": "Liver Function Test",
+  "TST081": "Liver Function Test",
+  "total bilirubin": "Liver Function Test",
+  "direct bilirubin": "Liver Function Test",
+  "indirect bilirubin": "Liver Function Test",
+  "s g p t": "Liver Function Test",
+  "sgpt": "Liver Function Test",
+  "s g o t": "Liver Function Test",
+  "sgot": "Liver Function Test",
+  "alkaline phosphatase": "Liver Function Test",
+  "total proteins": "Liver Function Test",
+  "serum albumin": "Liver Function Test",
+  "globulin": "Liver Function Test",
+  "a/g ratio": "Liver Function Test",
+
+  // LIPID PROFILE
+  "TST082": "Lipid Profile",
+  "TST083": "Lipid Profile",
+  "TST084": "Lipid Profile",
+  "TST085": "Lipid Profile",
+  "TST086": "Lipid Profile",
+  "TST087": "Lipid Profile",
+  "TST088": "Lipid Profile",
+  "lipid profile": "Lipid Profile",
+  "total cholesterol": "Lipid Profile",
+  "h d l cholesterol": "Lipid Profile",
+  "hdl cholesterol": "Lipid Profile",
+  "tryglycerides": "Lipid Profile",
+  "triglycerides": "Lipid Profile",
+  "l d l cholesterol": "Lipid Profile",
+  "ldl cholesterol": "Lipid Profile",
+  "v l d l cholesterol": "Lipid Profile",
+  "vldl cholesterol": "Lipid Profile",
+  "ldl/hdl": "Lipid Profile",
+
+  // ELECTROLYTES
+  "TST089": "Electrolytes",
+  "TST090": "Electrolytes",
+  "TST091": "Electrolytes",
+  "TST092": "Electrolytes",
+  "TST093": "Electrolytes",
+  "electrolytes profile": "Electrolytes",
+  "serum sodium": "Electrolytes",
+  "serum potassium": "Electrolytes",
+  "serum chloride": "Electrolytes",
+  "serum calcium": "Electrolytes",
+
+  // HBA1C
+  "TST071": "HBA1C",
+  "TST094": "HBA1C",
+  "TST095": "HBA1C",
+  "hba1c": "HBA1C",
+  "glycosylated haemoglobin(hba1c)": "HBA1C",
+  "glycosylated haemoglobin(hba1c):": "HBA1C",
+  "mean blood glucose": "HBA1C",
+};
+
+function getTestCategory(t) {
+  if (!t) return "Clinical Pathology";
+  if (t.id && CANONICAL_TEST_CATEGORIES[t.id]) {
+    return CANONICAL_TEST_CATEGORIES[t.id];
+  }
+  const nameKey = (t.name || "").toLowerCase().trim();
+  if (CANONICAL_TEST_CATEGORIES[nameKey]) {
+    return CANONICAL_TEST_CATEGORIES[nameKey];
+  }
+  return t.category || "Clinical Pathology";
+}
 
 const CLINICAL_CATEGORY_HEADERS = {
   "Clinical Pathology": "HAEMATOLOGY REPORT",
@@ -5252,10 +6339,12 @@ const CLINICAL_CATEGORY_HEADERS = {
   "Semen Analysis": "SEMEN ANALYSIS REPORT",
   "Additional Tests": "SPECIAL INVESTIGATION REPORT",
   "Special Investigations": "SPECIAL INVESTIGATION REPORT",
-  "Liver Function Test": "LIVER FUNCTION TEST REPORT",
-  "LFT": "LIVER FUNCTION TEST REPORT",
-  "Lipid Profile": "LIPID PROFILE REPORT",
-  "Electrolytes": "ELECTROLYTES REPORT",
+  "Liver Function Test": "LIVER FUNCTION TEST",
+  "LFT": "LIVER FUNCTION TEST",
+  "Lipid Profile": "LIPID PROFILE",
+  "Electrolytes": "ELECTROLYTES",
+  "HBA1C": "HBA1C",
+  "HbA1c": "HBA1C",
 };
 
 function formatCategoryHeader(categoryName) {
@@ -5659,6 +6748,36 @@ const CLINICAL_TEST_CONFIG = {
     unit: "mg/dl",
     referenceLines: ["8.6 - 10.2 mg/dl"],
   },
+
+  // HBA1C
+  "Glycosylated Haemoglobin(HBA1C)": {
+    displayName: "Glycosylated Haemoglobin(HBA1C):",
+    method: "( Method: Fluorescence Immuno Assay )",
+    unit: "%",
+    referenceLines: [
+      "Non Diabetic : 4.0 - 6.0 %",
+      "Good Control : 6.0 - 7.0 %",
+      "Fair Control : 7.0 - 8.0 %",
+      "Poor Control : > 8.0 %",
+    ],
+  },
+  "Glycosylated Haemoglobin(HBA1C):": {
+    displayName: "Glycosylated Haemoglobin(HBA1C):",
+    method: "( Method: Fluorescence Immuno Assay )",
+    unit: "%",
+    referenceLines: [
+      "Non Diabetic : 4.0 - 6.0 %",
+      "Good Control : 6.0 - 7.0 %",
+      "Fair Control : 7.0 - 8.0 %",
+      "Poor Control : > 8.0 %",
+    ],
+  },
+  "Mean Blood Glucose": {
+    displayName: "Mean Blood Glucose",
+    method: "",
+    unit: "mg/dl",
+    referenceLines: ["70 - 126 mg/dl"],
+  },
 };
 
 function formatLabDate(dateStr) {
@@ -5859,6 +6978,10 @@ function Reports({ onToast, navigate, route }) {
     "Clinical Pathology",
     "Urine Examinations",
     "Bio Chemistry",
+    "Liver Function Test",
+    "Lipid Profile",
+    "Electrolytes",
+    "HBA1C",
     "Motion Examination",
     "Semen Analysis",
     "Additional Tests",
@@ -5879,7 +7002,7 @@ function Reports({ onToast, navigate, route }) {
     if (sheetScope === "prescribed" || panelMode === "ordered") {
       if (patient?.tests?.length) {
         const active = CLINICAL_GROUPS.filter((grp) =>
-          tests.some((t) => t.category === grp && patient.tests.includes(t.id))
+          tests.some((t) => getTestCategory(t) === grp && patient.tests.includes(t.id))
         );
         return active.length ? active : [CLINICAL_GROUPS[0]];
       }
@@ -5931,11 +7054,34 @@ function Reports({ onToast, navigate, route }) {
       };
     }
 
-    // 4. Create an item stream with category group headers
+    // 4. Normalize category on all active tests & filter out package placeholder headers (unit === 'Profile') when individual tests exist
+    const hasIndividualLipid = activeTests.some((t) => ["TST083", "TST084", "TST085", "TST086", "TST087", "TST088"].includes(t.id));
+    const hasIndividualElectrolytes = activeTests.some((t) => ["TST090", "TST091", "TST092", "TST093"].includes(t.id));
+
+    const normalizedActiveTests = activeTests
+      .filter((t) => {
+        if (t.id === "TST082" && hasIndividualLipid) return false;
+        if (t.id === "TST089" && hasIndividualElectrolytes) return false;
+        return true;
+      })
+      .map((t) => ({
+        ...t,
+        category: getTestCategory(t),
+      }));
+
+    // 5. Group tests strictly by canonical CLINICAL_GROUPS category order so every test appears under its own heading
+    const categoryOrderMap = new Map(CLINICAL_GROUPS.map((grp, idx) => [grp, idx]));
+    const groupedTests = [...normalizedActiveTests].sort((a, b) => {
+      const orderA = categoryOrderMap.has(a.category) ? categoryOrderMap.get(a.category) : 999;
+      const orderB = categoryOrderMap.has(b.category) ? categoryOrderMap.get(b.category) : 999;
+      return orderA - orderB;
+    });
+
+    // 6. Create an item stream with category group headers
     const itemStream = [];
     let lastCategory = null;
 
-    activeTests.forEach((t) => {
+    groupedTests.forEach((t) => {
       if (t.category && t.category !== lastCategory) {
         lastCategory = t.category;
         itemStream.push({ type: "category", categoryName: lastCategory });
@@ -5943,7 +7089,7 @@ function Reports({ onToast, navigate, route }) {
       itemStream.push({ type: "test", test: t });
     });
 
-    // 5. Intelligent auto-cut pagination
+    // 7. Intelligent auto-cut pagination
     // Page 1 capacity: 20 row units (Clinical Pathology + Urine fit cleanly; overflow flows to Page 2, Page 3, etc.)
     // Subsequent pages capacity: 24 row units
     const PAGE_1_CAP = 20;
@@ -5983,7 +7129,7 @@ function Reports({ onToast, navigate, route }) {
       });
     }
 
-    return { pages, totalTests: activeTests.length };
+    return { pages, totalTests: groupedTests.length };
   }, [report, patient, tests, panelMode]);
 
   const { pages: continuousPages, totalTests } = continuousReportData;
@@ -6000,7 +7146,7 @@ function Reports({ onToast, navigate, route }) {
         ? selectedTests
         : tests;
     if (resultFilterCategory === "All") return base;
-    return base.filter((t) => t.category === resultFilterCategory);
+    return base.filter((t) => getTestCategory(t) === resultFilterCategory);
   }, [resultScope, selectedTests, tests, resultFilterCategory]);
 
   function updateResult(testId, value) {
@@ -6494,7 +7640,7 @@ function Reports({ onToast, navigate, route }) {
                           />
                         </td>
                         <td>{test.unit}</td>
-                        <td>{test.reference}</td>
+                        <td style={{ whiteSpace: "pre-line", lineHeight: "1.35", minWidth: 150 }}>{test.reference || "—"}</td>
                       </tr>
                     );
                   })}
@@ -6851,10 +7997,10 @@ function Reports({ onToast, navigate, route }) {
                             <table className="taz-clean-table">
                               <thead>
                                 <tr>
-                                  <th style={{ width: "32%", textAlign: "left" }}>TEST DESCRIPTION</th>
-                                  <th style={{ width: "18%", textAlign: "left" }}>RESULT</th>
-                                  <th style={{ width: "18%", textAlign: "left" }}>UNITS</th>
-                                  <th style={{ width: "32%", textAlign: "left" }}>BIOLOGICAL REFERENCE RANGES</th>
+                                  <th style={{ width: "33%", textAlign: "left" }}>TEST DESCRIPTION</th>
+                                  <th style={{ width: "16%", textAlign: "left" }}>RESULT</th>
+                                  <th style={{ width: "15%", textAlign: "left" }}>UNITS</th>
+                                  <th style={{ width: "36%", textAlign: "center" }}>BIOLOGICAL REFERENCE RANGES</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -6888,7 +8034,11 @@ function Reports({ onToast, navigate, route }) {
                                     const displayName = cfg.displayName || test.name;
                                     const method = cfg.method || "";
                                     const unit = cfg.unit || test.unit || "";
-                                    const refLines = cfg.referenceLines || (test.reference ? String(test.reference).split("\n") : []);
+                                    const refLines = (test.reference && String(test.reference).includes("\n"))
+                                      ? String(test.reference).split("\n").map((l) => l.trim()).filter(Boolean)
+                                      : (cfg.referenceLines && cfg.referenceLines.length)
+                                        ? cfg.referenceLines
+                                        : (test.reference ? String(test.reference).split("\n").map((l) => l.trim()).filter(Boolean) : []);
 
                                     return (
                                       <tr key={test.id} className="taz-clean-test-row">
@@ -6897,7 +8047,6 @@ function Reports({ onToast, navigate, route }) {
                                           {method && <div className="taz-test-method">{method}</div>}
                                         </td>
                                         <td className="taz-col-result">
-                                          <span className="taz-result-colon">:</span>
                                           <span className="taz-result-val">
                                             {result !== undefined && result !== null && String(result).trim() !== "" ? result : "—"}
                                           </span>

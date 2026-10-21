@@ -65,7 +65,7 @@ export function setCustomApiBase(url) {
 }
 
 // Detect API base dynamically: works on Vercel, localhost, or LAN IP
-function getApiBase() {
+export function getApiBase() {
   const custom = getCustomApiBase();
   if (custom) return custom.replace(/\/$/, "");
 
@@ -73,19 +73,25 @@ function getApiBase() {
   if (envApi) return envApi.replace(/\/$/, "");
 
   const hostname = window.location.hostname || "localhost";
-  
-  // If running in local development mode with Vite proxy
-  if ((hostname === "localhost" || hostname === "127.0.0.1" || hostname.startsWith("192.168.") || hostname.startsWith("10.")) && (window.location.port === "5173" || window.location.port === "3000")) {
+  const port = window.location.port;
+
+  // If running with Vite dev server (on any IP/mobile/PC) or port 3000
+  if (port === "5173" || port === "3000") {
     return "/api";
   }
 
-  // If running on local network without proxy
-  if (hostname.startsWith("192.168.") || hostname.startsWith("10.")) {
+  // If served directly from server port 5000
+  if (port === "5000") {
+    return "/api";
+  }
+
+  // If running on local network (e.g. mobile connected to PC IP)
+  if (hostname.startsWith("192.168.") || hostname.startsWith("10.") || hostname.startsWith("172.")) {
     return `http://${hostname}:5000/api`;
   }
 
-  // Default to 24/7 Render Cloud Production Backend (for Vercel & Public Web)
-  return "https://taz-diagnostics.onrender.com/api";
+  // Default to relative /api
+  return "/api";
 }
 
 let currentDataVersion = 0;
@@ -119,8 +125,31 @@ function notifySyncListeners() {
 }
 
 /**
+ * Fetch Network IP Addresses and Mobile URLs from backend
+ */
+export async function fetchNetworkInfo() {
+  try {
+    const apiBase = getApiBase();
+    const res = await fetch(`${apiBase}/data/network-info`, { cache: "no-store" });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn("fetchNetworkInfo error:", err);
+  }
+  const host = window.location.hostname || "192.168.31.166";
+  return {
+    success: true,
+    primaryIp: host,
+    mobileUrl: `http://${host}:5173/`,
+    serverUrl: `http://${host}:5000/api`
+  };
+}
+
+/**
  * Merge local collection with remote collection without data loss.
  * Respects explicitly deleted items and retains local additions not yet synced to remote.
+ * Compares timestamps so newest edit (from Mobile or PC) always wins!
  */
 function mergeCollectionWithRemote(colKey, localList, remoteList, deletedIds = []) {
   if (!Array.isArray(remoteList)) return { merged: localList, missingInRemote: [] };
@@ -144,21 +173,31 @@ function mergeCollectionWithRemote(colKey, localList, remoteList, deletedIds = [
     }
   });
 
-  const merged = Array.from(remoteMap.values());
   const missingInRemote = [];
 
-  // Look for any item that exists locally but not in remote
+  // Look for any item that exists locally and reconcile with remote
   localList.forEach((item) => {
     if (!item) return;
     const id = String(item.id || item.code || "");
     if (!id || deletedSet.has(id)) return;
 
     if (!remoteMap.has(id)) {
-      merged.push(item);
+      remoteMap.set(id, item);
       missingInRemote.push(item);
+    } else {
+      // Reconcile if both exist: newest updatedAt or date wins!
+      const remoteItem = remoteMap.get(id);
+      const localTime = new Date(item.updatedAt || item.date || item.createdAt || 0).getTime();
+      const remoteTime = new Date(remoteItem.updatedAt || remoteItem.date || remoteItem.createdAt || 0).getTime();
+
+      if (localTime > remoteTime) {
+        remoteMap.set(id, item);
+        missingInRemote.push(item);
+      }
     }
   });
 
+  const merged = Array.from(remoteMap.values());
   return { merged, missingInRemote };
 }
 
@@ -402,3 +441,83 @@ export function startLiveSync(pollIntervalMs = 2500) {
     document.removeEventListener("visibilitychange", onSyncTrigger);
   };
 }
+
+/**
+ * 1-Click Export of the complete lifetime database as a file
+ */
+export async function downloadLifetimeBackup() {
+  try {
+    const apiBase = getApiBase();
+    const res = await fetch(`${apiBase}/data/backup/export`);
+    if (res.ok) {
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `taz_diagnostics_lifetime_backup_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      return true;
+    }
+  } catch (e) {
+    console.warn("Backend backup export failed, falling back to local client backup:", e);
+  }
+
+  // Client-side fallback: exports full localStorage store
+  const backup = {
+    exportedAt: new Date().toISOString(),
+    source: "Taz Diagnostic Lifetime Client Backup",
+    data: {}
+  };
+  Object.keys(STORAGE_MAP).forEach((col) => {
+    try {
+      const key = STORAGE_MAP[col];
+      const val = localStorage.getItem(key);
+      if (val) backup.data[col] = JSON.parse(val);
+    } catch {}
+  });
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `taz_diagnostics_lifetime_backup_${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  return true;
+}
+
+/**
+ * 1-Click Restore of complete lifetime database from a JSON file
+ */
+export async function restoreLifetimeBackup(file) {
+  const text = await file.text();
+  const bundle = JSON.parse(text);
+  const data = bundle.data || bundle;
+
+  // Restore directly to localStorage so it works even offline
+  Object.entries(STORAGE_MAP).forEach(([col, storageKey]) => {
+    if (data[col] && Array.isArray(data[col])) {
+      localStorage.setItem(storageKey, JSON.stringify(data[col]));
+    }
+  });
+
+  // Also push to central backend if online
+  try {
+    const apiBase = getApiBase();
+    await fetch(`${apiBase}/data/backup/import`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(bundle)
+    });
+  } catch (e) {
+    console.warn("Could not push restored backup to server:", e);
+  }
+
+  window.dispatchEvent(new Event("storage"));
+  return true;
+}
+

@@ -24,13 +24,26 @@ app.use(
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const CLIENT_DIST = path.resolve(__dirname, "../../client/dist");
+
 // API Routes
 app.use("/api/data", dataSyncRouter);
 app.use("/api/store", dataSyncRouter);
 app.use("/api/reminders", remindersRouter);
 app.use("/api/whatsapp", webhookRouter);
 
-app.get("/", (_req, res) => {
+// Serve static frontend build if it exists
+if (fs.existsSync(CLIENT_DIST)) {
+  app.use(express.static(CLIENT_DIST));
+}
+
+app.get("/api", (_req, res) => {
   res.json({
     status: "online",
     application: "TAZ COMPANY — TAZ DIAGNOSTIC LAB SERVER",
@@ -43,6 +56,22 @@ app.get("/", (_req, res) => {
     }
   });
 });
+
+if (fs.existsSync(CLIENT_DIST)) {
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api")) return next();
+    res.sendFile(path.join(CLIENT_DIST, "index.html"));
+  });
+} else {
+  app.get("/", (_req, res) => {
+    res.json({
+      status: "online",
+      application: "TAZ COMPANY — TAZ DIAGNOSTIC LAB SERVER",
+      version: "1.0.0",
+      multiPcSync: "Active"
+    });
+  });
+}
 
 
 app.get("/api/health", (_req, res) => {

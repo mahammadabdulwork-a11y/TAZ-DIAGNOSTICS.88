@@ -65,6 +65,7 @@ import {
   fetchNetworkInfo,
   downloadLifetimeBackup,
   restoreLifetimeBackup,
+  syncBatchToBackend,
 } from "./services/dataSyncService.js";
 
 
@@ -1797,15 +1798,21 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
   const [isRestoring, setIsRestoring] = useState(false);
   const fileInputRef = useRef(null);
 
+  const [selectedHost, setSelectedHost] = useState("");
+
   useEffect(() => {
     fetchNetworkInfo().then((info) => {
       if (info) setNetworkInfo(info);
     });
   }, []);
 
-  const resolvedHost = networkInfo?.primaryIp || networkInfo?.localIps?.[0] || "192.168.31.166";
+  const currentHost = (window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1")
+    ? window.location.hostname
+    : (networkInfo?.primaryIp || "192.168.55.102");
+
+  const resolvedHost = selectedHost.trim() || currentHost;
   const port = window.location.port || "5173";
-  const mobileUrl = (window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1")
+  const mobileUrl = (window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1" && !selectedHost)
     ? window.location.origin
     : `http://${resolvedHost}:${port}/`;
 
@@ -3452,12 +3459,8 @@ function PatientEntry({ navigate, onToast }) {
       tests: selectedTests,
     };
 
-    write(STORAGE.patients, [...currentPatients, patient]);
-
-    // Auto create report
-    const reports = read(STORAGE.reports, DEFAULT_REPORTS);
-    const newReportId = nextId("REP", reports);
-    write(STORAGE.reports, [
+    const updatedPatients = [...currentPatients, patient];
+    const updatedReports = [
       ...reports,
       {
         id: newReportId,
@@ -3467,11 +3470,8 @@ function PatientEntry({ navigate, onToast }) {
         status: "Pending",
         results: {},
       },
-    ]);
-
-    // Auto create bill
-    const bills = read(STORAGE.bills, DEFAULT_BILLS);
-    write(STORAGE.bills, [
+    ];
+    const updatedBills = [
       ...bills,
       {
         id: nextId("BILL", bills),
@@ -3482,7 +3482,16 @@ function PatientEntry({ navigate, onToast }) {
         mode: "Cash",
         status: "Pending",
       },
-    ]);
+    ];
+
+    write(STORAGE.patients, updatedPatients);
+    write(STORAGE.reports, updatedReports);
+    write(STORAGE.bills, updatedBills);
+    syncBatchToBackend({
+      patients: updatedPatients,
+      reports: updatedReports,
+      bills: updatedBills,
+    });
 
     if (actionTarget === "open_report") {
       onToast(`Patient ${patient.name} registered! Opening lab report...`, "success");
@@ -3505,7 +3514,10 @@ function PatientEntry({ navigate, onToast }) {
         subtitle="Modern clinical intake with 1-click test packages, instant search, and direct laboratory routing."
       >
         <Button onClick={resetAll}>
-          <RefreshCw size={14} /> Clear Form & Selection
+          <RefreshCw size={14} /> Clear Form
+        </Button>
+        <Button id="btn-header-register-patient" primary onClick={() => submitWithAction("patients")}>
+          <Check size={16} /> Register Patient & Save
         </Button>
       </PageHeader>
 

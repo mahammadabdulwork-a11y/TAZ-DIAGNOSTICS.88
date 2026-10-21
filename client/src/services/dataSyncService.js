@@ -107,6 +107,22 @@ function notifySyncListeners() {
   });
 }
 
+let syncBroadcastChannel = null;
+try {
+  if (typeof window !== "undefined" && "BroadcastChannel" in window) {
+    syncBroadcastChannel = new BroadcastChannel("taz_company_realtime_sync");
+    syncBroadcastChannel.onmessage = (event) => {
+      if (event?.data?.type === "DATA_UPDATED") {
+        window.dispatchEvent(
+          new CustomEvent("taz-company-update", { detail: { key: event.data.key, value: event.data.value } })
+        );
+      } else if (event?.data?.type === "REFRESH_ALL") {
+        pullAllFromBackend(true);
+      }
+    };
+  }
+} catch {}
+
 /**
  * Fetch Network IP Addresses and Mobile URLs from backend
  */
@@ -115,12 +131,13 @@ export async function fetchNetworkInfo() {
     const apiBase = getApiBase();
     const res = await fetch(`${apiBase}/data/network-info`, { cache: "no-store" });
     if (res.ok) {
-      return await res.json();
+      const info = await res.json();
+      if (info && info.primaryIp) return info;
     }
   } catch (err) {
     console.warn("fetchNetworkInfo error:", err);
   }
-  const host = window.location.hostname || "192.168.31.166";
+  const host = (typeof window !== "undefined" && window.location.hostname) ? window.location.hostname : "localhost";
   return {
     success: true,
     primaryIp: host,
@@ -171,7 +188,7 @@ export async function pullAllFromBackend(force = false) {
 
           // Adopt server collection directly so additions and deletions sync perfectly
           const serverStr = JSON.stringify(serverData[colKey]);
-          if (currentLocalRaw !== serverStr) {
+          if (currentLocalRaw !== serverStr || force) {
             localStorage.setItem(storageKey, serverStr);
             hasChanges = true;
             window.dispatchEvent(
@@ -251,6 +268,11 @@ export async function syncCollectionToBackend(storageKey, value) {
   const colName = REVERSE_STORAGE_MAP[storageKey] || storageKey.replace("taz_company_", "");
   if (!colName) return false;
 
+  // Broadcast immediately to all tabs in the same browser
+  try {
+    syncBroadcastChannel?.postMessage({ type: "DATA_UPDATED", key: storageKey, value });
+  } catch {}
+
   try {
     const apiBase = getApiBase();
     const res = await fetch(`${apiBase}/data/${colName}`, {
@@ -275,11 +297,41 @@ export async function syncCollectionToBackend(storageKey, value) {
 }
 
 /**
+ * Save multiple collections atomically to central backend
+ */
+export async function syncBatchToBackend(bundle) {
+  try {
+    const apiBase = getApiBase();
+    const res = await fetch(`${apiBase}/data/all/sync`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(bundle),
+      keepalive: true
+    });
+
+    if (res.ok) {
+      const result = await res.json();
+      isConnectedToServer = true;
+      if (result.version) currentDataVersion = result.version;
+      notifySyncListeners();
+      return true;
+    }
+  } catch (err) {
+    console.warn("syncBatchToBackend error:", err);
+  }
+  return false;
+}
+
+/**
  * Delete single item from central backend
  */
 export async function deleteItemFromBackend(storageKey, id) {
   const colName = REVERSE_STORAGE_MAP[storageKey] || storageKey.replace("taz_company_", "");
   if (!colName || !id) return false;
+
+  try {
+    syncBroadcastChannel?.postMessage({ type: "REFRESH_ALL" });
+  } catch {}
 
   try {
     const apiBase = getApiBase();
@@ -306,7 +358,7 @@ export async function deleteItemFromBackend(storageKey, id) {
  */
 let syncIntervalTimer = null;
 
-export function startLiveSync(pollIntervalMs = 1500) {
+export function startLiveSync(pollIntervalMs = 1000) {
   // Clear any stale custom API base
   try {
     const saved = localStorage.getItem("taz_company_custom_api_base");

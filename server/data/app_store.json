@@ -98,6 +98,13 @@
         "TST011",
         "TST012"
       ]
+    },
+    {
+      "id": "PAT005",
+      "name": "Zoya Fatima",
+      "phone": "9876543219",
+      "age": "28",
+      "gender": "Female"
     }
   ],
   "doctors": [
@@ -1025,6 +1032,14 @@
       "date": "2026-10-21",
       "status": "Pending",
       "results": {}
+    },
+    {
+      "id": "REP004",
+      "patientId": "PAT004",
+      "doctor": "Dr. Ahmed Khan",
+      "date": "2026-10-21",
+      "status": "Pending",
+      "results": {}
     }
   ],
   "bills": [
@@ -1051,6 +1066,15 @@
       "patientId": "PAT003",
       "date": "2026-10-21",
       "amount": 300,
+      "paid": 0,
+      "mode": "Cash",
+      "status": "Pending"
+    },
+    {
+      "id": "BILL004",
+      "patientId": "PAT004",
+      "date": "2026-10-21",
+      "amount": 100,
       "paid": 0,
       "mode": "Cash",
       "status": "Pending"
@@ -1097,5 +1121,5 @@
     "retestCycleDays": 30,
     "whatsappTemplateName": "taz_monthly_retest_reminder"
   },
-  "_version": 1792572137460
+  "_version": 1792592642756
 }

@@ -163,8 +163,79 @@ export function bumpDataVersion() {
 }
 
 // ---------------------------------------------------------------------------
-// File Store Helpers
+// File Store Helpers with In-Memory Cache and Concurrency Protection
 // ---------------------------------------------------------------------------
+let cachedAppStore = null;
+let isSaving = false;
+let pendingSave = false;
+
+export function getAppStore() {
+  if (cachedAppStore) return cachedAppStore;
+  cachedAppStore = getAppStoreFromFile();
+  return cachedAppStore;
+}
+
+export function mergeCollectionItems(existing = [], incoming = []) {
+  if (!Array.isArray(incoming)) return incoming;
+  if (!Array.isArray(existing) || existing.length === 0) return incoming;
+
+  const map = new Map();
+
+  existing.forEach((item) => {
+    if (!item) return;
+    const id = String(item.id || item.code || "");
+    if (id) {
+      map.set(id, item);
+    }
+  });
+
+  incoming.forEach((item) => {
+    if (!item) return;
+    const id = String(item.id || item.code || "");
+    if (!id) return;
+
+    if (!map.has(id)) {
+      map.set(id, item);
+    } else {
+      const current = map.get(id);
+      const incomingTime = new Date(item.updatedAt || item.date || item.createdAt || 0).getTime();
+      const currentTime = new Date(current.updatedAt || current.date || current.createdAt || 0).getTime();
+
+      if (incomingTime >= currentTime) {
+        map.set(id, { ...current, ...item });
+      } else {
+        map.set(id, { ...item, ...current });
+      }
+    }
+  });
+
+  return Array.from(map.values());
+}
+
+function triggerDebouncedStoreSave() {
+  if (isSaving) {
+    pendingSave = true;
+    return;
+  }
+  isSaving = true;
+  pendingSave = false;
+
+  setImmediate(() => {
+    try {
+      if (cachedAppStore) {
+        saveAppStoreToFile(cachedAppStore);
+      }
+    } catch (err) {
+      console.error("[FileStore] Save error:", err);
+    } finally {
+      isSaving = false;
+      if (pendingSave) {
+        triggerDebouncedStoreSave();
+      }
+    }
+  });
+}
+
 function getAppStoreFromFile() {
   const getInitialDefaultStore = () => ({
     patients: [],
@@ -528,19 +599,25 @@ export async function getCollectionAsync(collectionKey, fallback = []) {
     }
   }
 
-  // File fallback
-  const store = getAppStoreFromFile();
+  // Memory store with disk fallback
+  const store = getAppStore();
   return store[collectionKey] !== undefined ? store[collectionKey] : fallback;
 }
 
-export async function saveCollectionAsync(collectionKey, data) {
+export async function saveCollectionAsync(collectionKey, data, options = { merge: true }) {
   bumpDataVersion();
 
-  // Save to file fallback
+  // Save to memory cache and trigger debounced disk sync
   try {
-    const store = getAppStoreFromFile();
-    store[collectionKey] = data;
-    saveAppStoreToFile(store);
+    const store = getAppStore();
+    if (Array.isArray(data) && options?.merge !== false) {
+      const existing = Array.isArray(store[collectionKey]) ? store[collectionKey] : [];
+      store[collectionKey] = mergeCollectionItems(existing, data);
+    } else {
+      store[collectionKey] = data;
+    }
+    store._version = lastDataVersion;
+    triggerDebouncedStoreSave();
   } catch (err) {
     console.error(`[FileStore] Error saving ${collectionKey}:`, err);
   }
@@ -629,7 +706,7 @@ export async function saveCollectionAsync(collectionKey, data) {
 }
 
 export async function getAllCollectionsAsync() {
-  const store = getAppStoreFromFile();
+  const store = getAppStore();
   const result = { ...store, _version: lastDataVersion };
 
   if (isMysqlConnected && mysqlPool) {
@@ -652,12 +729,20 @@ export async function getAllCollectionsAsync() {
   return result;
 }
 
-export async function saveAllCollectionsAsync(bundle) {
+export async function saveAllCollectionsAsync(bundle, options = { merge: true }) {
   bumpDataVersion();
+  const store = getAppStore();
   const keys = Object.keys(bundle).filter((k) => !k.startsWith("_"));
   for (const key of keys) {
-    await saveCollectionAsync(key, bundle[key]);
+    if (Array.isArray(bundle[key]) && options?.merge !== false) {
+      const existing = Array.isArray(store[key]) ? store[key] : [];
+      store[key] = mergeCollectionItems(existing, bundle[key]);
+    } else {
+      store[key] = bundle[key];
+    }
   }
+  store._version = lastDataVersion;
+  triggerDebouncedStoreSave();
   return { success: true, version: lastDataVersion };
 }
 

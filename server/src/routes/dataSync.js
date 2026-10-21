@@ -201,7 +201,7 @@ router.delete("/:collection/:id", async (req, res) => {
 
     if (Array.isArray(currentItems)) {
       const updatedItems = currentItems.filter((x) => String(x.id) !== String(id) && String(x.code) !== String(id));
-      const result = await saveCollectionAsync(collection, updatedItems);
+      const result = await saveCollectionAsync(collection, updatedItems, { merge: false });
       return res.json({
         success: true,
         collection,

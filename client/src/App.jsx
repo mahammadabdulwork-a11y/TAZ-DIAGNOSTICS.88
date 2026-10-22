@@ -1808,7 +1808,7 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
 
   const currentHost = (window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1")
     ? window.location.hostname
-    : (networkInfo?.primaryIp || "192.168.55.102");
+    : (networkInfo?.primaryIp || "192.168.31.166");
 
   const resolvedHost = selectedHost.trim() || currentHost;
   const port = window.location.port || "5173";
@@ -3344,6 +3344,8 @@ function PatientEntry({ navigate, onToast }) {
   const [tests] = useStoredData(STORAGE.tests, DEFAULT_TESTS);
   const [branches] = useStoredData(STORAGE.branches, DEFAULT_BRANCHES);
   const [patients, setPatients] = useStoredData(STORAGE.patients, DEFAULT_PATIENTS);
+  const [reports, setReports] = useStoredData(STORAGE.reports, DEFAULT_REPORTS);
+  const [bills, setBills] = useStoredData(STORAGE.bills, DEFAULT_BILLS);
 
   const [form, setForm] = useState({
     name: "",
@@ -3459,9 +3461,14 @@ function PatientEntry({ navigate, onToast }) {
       tests: selectedTests,
     };
 
+    const currentReports = read(STORAGE.reports, DEFAULT_REPORTS);
+    const newReportId = nextId("REP", currentReports);
+    const currentBills = read(STORAGE.bills, DEFAULT_BILLS);
+    const newBillId = nextId("BILL", currentBills);
+
     const updatedPatients = [...currentPatients, patient];
     const updatedReports = [
-      ...reports,
+      ...currentReports,
       {
         id: newReportId,
         patientId: patient.id,
@@ -3472,9 +3479,9 @@ function PatientEntry({ navigate, onToast }) {
       },
     ];
     const updatedBills = [
-      ...bills,
+      ...currentBills,
       {
-        id: nextId("BILL", bills),
+        id: newBillId,
         patientId: patient.id,
         date: today(),
         amount: calculatedTotal,
@@ -3484,6 +3491,9 @@ function PatientEntry({ navigate, onToast }) {
       },
     ];
 
+    setPatients(updatedPatients);
+    setReports(updatedReports);
+    setBills(updatedBills);
     write(STORAGE.patients, updatedPatients);
     write(STORAGE.reports, updatedReports);
     write(STORAGE.bills, updatedBills);

@@ -604,13 +604,13 @@ export async function getCollectionAsync(collectionKey, fallback = []) {
   return store[collectionKey] !== undefined ? store[collectionKey] : fallback;
 }
 
-export async function saveCollectionAsync(collectionKey, data, options = { merge: true }) {
+export async function saveCollectionAsync(collectionKey, data, options = { merge: false }) {
   bumpDataVersion();
 
   // Save to memory cache and trigger debounced disk sync
   try {
     const store = getAppStore();
-    if (Array.isArray(data) && options?.merge !== false) {
+    if (Array.isArray(data) && options?.merge === true) {
       const existing = Array.isArray(store[collectionKey]) ? store[collectionKey] : [];
       store[collectionKey] = mergeCollectionItems(existing, data);
     } else {
@@ -729,12 +729,12 @@ export async function getAllCollectionsAsync() {
   return result;
 }
 
-export async function saveAllCollectionsAsync(bundle, options = { merge: true }) {
+export async function saveAllCollectionsAsync(bundle, options = { merge: false }) {
   bumpDataVersion();
   const store = getAppStore();
   const keys = Object.keys(bundle).filter((k) => !k.startsWith("_"));
   for (const key of keys) {
-    if (Array.isArray(bundle[key]) && options?.merge !== false) {
+    if (Array.isArray(bundle[key]) && options?.merge === true) {
       const existing = Array.isArray(store[key]) ? store[key] : [];
       store[key] = mergeCollectionItems(existing, bundle[key]);
     } else {

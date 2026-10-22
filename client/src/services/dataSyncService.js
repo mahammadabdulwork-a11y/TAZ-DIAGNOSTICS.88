@@ -180,8 +180,9 @@ export async function pullAllFromBackend(force = false) {
             currentLocal = null;
           }
 
-          // If server is empty on first boot but local has data, push local up
-          if (Array.isArray(serverData[colKey]) && serverData[colKey].length === 0 && Array.isArray(currentLocal) && currentLocal.length > 0) {
+          // If server is brand new on zero-boot but local has data, push local up
+          const isServerZeroBoot = !result.version || result.version === 0;
+          if (isServerZeroBoot && Array.isArray(serverData[colKey]) && serverData[colKey].length === 0 && Array.isArray(currentLocal) && currentLocal.length > 0) {
             collectionsToPush.push({ storageKey, data: currentLocal });
             return;
           }

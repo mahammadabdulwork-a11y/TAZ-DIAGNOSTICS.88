@@ -40,7 +40,7 @@ router.get("/all/bundle", async (req, res) => {
 router.post("/all/sync", async (req, res) => {
   try {
     const bundle = req.body || {};
-    const result = await saveAllCollectionsAsync(bundle);
+    const result = await saveAllCollectionsAsync(bundle, { merge: false });
     res.json({
       success: true,
       message: "All collections synchronized successfully",
@@ -142,7 +142,7 @@ router.post("/:collection", async (req, res) => {
   try {
     const { collection } = req.params;
     const data = req.body;
-    const result = await saveCollectionAsync(collection, data);
+    const result = await saveCollectionAsync(collection, data, { merge: false });
     res.json({
       success: true,
       collection,

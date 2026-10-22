@@ -1791,21 +1791,21 @@ td small {
 
 /* Patient Information Section */
 .taz-clean-patient-heading {
-  font-size: 11.5px;
+  font-size: 13px;
   font-weight: 800;
-  color: #111111;
+  color: #000000;
   letter-spacing: 0.6px;
   text-transform: uppercase;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
   margin-top: 2px;
   font-family: Arial, Helvetica, sans-serif;
 }
 
 .taz-clean-patient-card {
   background: #ffffff;
-  border: 1px solid #666666;
+  border: 1.5px solid #333333;
   border-radius: 4px;
-  padding: 8px 14px 7px 14px;
+  padding: 10px 14px 9px 14px;
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -1820,46 +1820,49 @@ td small {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 
 .taz-clean-pi-row {
   display: flex;
   align-items: center;
-  font-size: 10.5px;
-  color: #111111;
+  font-size: 12.5px;
+  color: #000000;
   font-family: Arial, Helvetica, sans-serif;
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 .taz-clean-pi-icon {
-  color: #444444;
+  color: #333333;
   margin-right: 6px;
   flex-shrink: 0;
 }
 
 .taz-clean-pi-label {
-  font-weight: 600;
+  font-weight: 700;
   color: #222222;
-  width: 90px;
+  width: 95px;
   flex-shrink: 0;
 }
 
 .taz-clean-pi-sep {
-  font-weight: 600;
+  font-weight: 700;
   color: #222222;
   margin: 0 6px;
   flex-shrink: 0;
 }
 
 .taz-clean-pi-val {
-  color: #111111;
+  color: #000000;
+  font-size: 12.5px;
+  font-weight: 600;
   flex: 1;
 }
 
 .taz-clean-pi-val.bold-name,
 .taz-clean-pi-val.bold-code {
-  font-weight: 700;
+  font-size: 13.5px;
+  font-weight: 800;
   color: #000000;
 }
 
@@ -1867,7 +1870,7 @@ td small {
   display: inline-block;
   padding: 2px 10px;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   font-family: Arial, Helvetica, sans-serif;
   text-transform: capitalize;
@@ -1876,7 +1879,7 @@ td small {
 }
 
 .taz-clean-status-pill.completed {
-  background: #3b8256;
+  background: #2d6a4f;
   color: #ffffff;
 }
 
@@ -1905,16 +1908,16 @@ td small {
 }
 
 .taz-clean-table thead tr {
-  border-bottom: 1.5px solid #222222;
+  border-bottom: 2px solid #000000;
 }
 
 .taz-clean-table th {
-  font-size: 10px;
+  font-size: 12.5px;
   font-weight: 800;
-  color: #111111;
+  color: #000000;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding: 6px 4px 7px 4px;
+  padding: 8px 6px 8px 6px;
   text-align: left;
   border: none;
   font-family: Arial, Helvetica, sans-serif;
@@ -1922,7 +1925,7 @@ td small {
 }
 
 .taz-clean-table td {
-  padding: 4px 4px;
+  padding: 5px 6px;
   border: none;
   vertical-align: top;
   font-family: Arial, Helvetica, sans-serif;
@@ -1948,14 +1951,14 @@ td small {
 .taz-clean-cat-line {
   flex: 1;
   height: 1px;
-  background: #888888;
+  background: #777777;
   max-width: 130px;
 }
 
 .taz-clean-cat-text {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 800;
-  color: #111111;
+  color: #000000;
   letter-spacing: 0.8px;
   text-transform: uppercase;
   font-family: Arial, Helvetica, sans-serif;
@@ -1973,21 +1976,22 @@ td small {
 }
 
 .taz-test-name {
-  font-size: 11px;
-  font-weight: 600;
-  color: #111111;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #000000;
+  line-height: 1.35;
 }
 
 .taz-test-method {
-  font-size: 9.5px;
+  font-size: 11px;
   font-style: italic;
-  color: #555555;
+  color: #444444;
   margin-top: 1px;
 }
 
 .taz-col-result {
-  font-size: 11.5px;
-  color: #111111;
+  font-size: 14.5px;
+  color: #000000;
   white-space: nowrap;
   text-align: left;
 }
@@ -1997,30 +2001,34 @@ td small {
 }
 
 .taz-result-val {
-  font-weight: 700;
+  font-weight: 800;
   color: #000000;
 }
 
 .taz-col-unit {
-  font-size: 10.5px;
-  font-weight: 500;
-  color: #222222;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #111111;
   text-align: left;
+  line-height: 1.35;
 }
 
 .taz-col-ref {
-  font-size: 10.5px;
-  font-weight: 500;
-  color: #222222;
-  line-height: 1.35;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #111111;
+  line-height: 1.4;
   text-align: center;
   white-space: pre-line;
 }
 
 .taz-ref-item {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #111111;
   white-space: pre-line;
   text-align: center;
-  line-height: 1.35;
+  line-height: 1.4;
 }
 
 /* Footer & Signature */
@@ -2032,9 +2040,9 @@ td small {
 
 .taz-clean-end-text {
   text-align: center;
-  font-size: 10px;
-  font-weight: 600;
-  color: #333333;
+  font-size: 12px;
+  font-weight: 700;
+  color: #000000;
   letter-spacing: 0.5px;
   margin-bottom: 8px;
   font-family: Arial, Helvetica, sans-serif;
@@ -2049,33 +2057,52 @@ td small {
 }
 
 .taz-clean-sig-img {
-  height: 38px;
+  height: 40px;
   object-fit: contain;
   display: block;
   margin-bottom: 3px;
 }
 
 .taz-clean-sig-tech {
-  font-size: 10.5px;
-  font-weight: 600;
-  color: #111111;
+  font-size: 12px;
+  font-weight: 700;
+  color: #000000;
   line-height: 1.3;
 }
 
 .taz-clean-sig-lab {
-  font-size: 10.5px;
+  font-size: 13px;
   font-weight: 800;
-  color: #111111;
+  color: #000000;
   letter-spacing: 0.4px;
   line-height: 1.3;
 }
 
 .taz-clean-sig-code {
-  font-size: 9px;
-  font-weight: 500;
-  color: #333333;
-  letter-spacing: 0.4px;
-  margin-top: 1px;
+  display: none !important;
+}
+
+/* Page continuation indicator (crisp, solid pure black, safe margin) */
+.taz-clean-continuation-wrap {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  margin-top: auto !important;
+  padding: 8px 6px 14px 6px !important;
+  border-top: 1px dashed #777777 !important;
+}
+
+.taz-clean-continuation-text {
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  color: #000000 !important;
+  letter-spacing: 0.6px !important;
+  text-transform: uppercase !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  text-rendering: geometricPrecision !important;
+  -webkit-font-smoothing: antialiased !important;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
 }
 
 /* =========================================================
@@ -2143,7 +2170,7 @@ td small {
     height: 297mm !important;
     min-height: 297mm !important;
     max-height: 297mm !important;
-    padding: 8mm 14mm 10mm 14mm !important;
+    padding: 8mm 14mm 14mm 14mm !important;
     box-shadow: none !important;
     border: none !important;
     border-radius: 0 !important;
@@ -2168,9 +2195,108 @@ td small {
   .taz-clean-status-pill,
   .taz-clean-green-icon,
   .taz-clean-table,
-  .taz-clean-footer {
+  .taz-clean-footer,
+  .taz-clean-continuation-wrap,
+  .taz-clean-continuation-text {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+
+  .paper.report-sheet .taz-clean-patient-heading {
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
+  }
+
+  .paper.report-sheet .taz-clean-pi-row {
+    font-size: 12.5px !important;
+    color: #000000 !important;
+  }
+
+  .paper.report-sheet .taz-clean-pi-label,
+  .paper.report-sheet .taz-clean-pi-sep {
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    color: #000000 !important;
+  }
+
+  .paper.report-sheet .taz-clean-pi-val {
+    font-size: 12.5px !important;
+    color: #000000 !important;
+  }
+
+  .paper.report-sheet .taz-clean-pi-val.bold-name,
+  .paper.report-sheet .taz-clean-pi-val.bold-code {
+    font-size: 13.5px !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
+  }
+
+  .paper.report-sheet .taz-clean-table th {
+    font-size: 12.5px !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
+  }
+
+  .paper.report-sheet .taz-clean-cat-text {
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
+  }
+
+  .paper.report-sheet .taz-test-name {
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    color: #000000 !important;
+  }
+
+  .paper.report-sheet .taz-test-method {
+    font-size: 11px !important;
+    color: #333333 !important;
+  }
+
+  .paper.report-sheet .taz-col-result,
+  .paper.report-sheet .taz-result-val {
+    font-size: 14.5px !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
+  }
+
+  .paper.report-sheet .taz-col-unit {
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    color: #000000 !important;
+  }
+
+  .paper.report-sheet .taz-col-ref,
+  .paper.report-sheet .taz-ref-item {
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    color: #000000 !important;
+  }
+
+  .paper.report-sheet .taz-clean-continuation-wrap {
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    margin-top: auto !important;
+    padding: 8px 6px 14px 6px !important;
+    border-top: 1px dashed #777777 !important;
+  }
+
+  .paper.report-sheet .taz-clean-continuation-text {
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
+    letter-spacing: 0.6px !important;
+    text-transform: uppercase !important;
+    text-rendering: geometricPrecision !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .paper.report-sheet .taz-clean-sig-code {
+    display: none !important;
   }
 
   .paper.report-sheet .paper-brand-title strong {

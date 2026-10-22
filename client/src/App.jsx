@@ -6814,10 +6814,10 @@ function Reports({ onToast, navigate, route }) {
     });
 
     // 7. Intelligent auto-cut pagination
-    // Page 1 capacity: 20 row units (Clinical Pathology + Urine fit cleanly; overflow flows to Page 2, Page 3, etc.)
-    // Subsequent pages capacity: 24 row units
-    const PAGE_1_CAP = 20;
-    const SUB_PAGE_CAP = 24;
+    // Page 1 capacity: 15 row units (safe margin for larger readable fonts; overflow flows cleanly to Page 2)
+    // Subsequent pages capacity: 19 row units
+    const PAGE_1_CAP = 15;
+    const SUB_PAGE_CAP = 19;
 
     const pages = [];
     let currentPageItems = [];
@@ -7004,7 +7004,7 @@ function Reports({ onToast, navigate, route }) {
       box-sizing: border-box !important;
       box-shadow: none !important;
       margin: 0 !important;
-      padding: 8mm 14mm 10mm 14mm !important;
+      padding: 8mm 14mm 14mm 14mm !important;
       border: none !important;
       display: flex !important;
       flex-direction: column !important;
@@ -7026,10 +7026,27 @@ function Reports({ onToast, navigate, route }) {
     .taz-clean-status-pill,
     .taz-clean-green-icon,
     .taz-clean-table,
-    .taz-clean-footer {
+    .taz-clean-footer,
+    .taz-clean-continuation-wrap,
+    .taz-clean-continuation-text {
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
+
+    .taz-test-name { font-size: 13.5px !important; font-weight: 700 !important; color: #000000 !important; }
+    .taz-test-method { font-size: 11px !important; color: #333333 !important; }
+    .taz-col-result, .taz-result-val { font-size: 14.5px !important; font-weight: 800 !important; color: #000000 !important; }
+    .taz-col-unit { font-size: 12.5px !important; font-weight: 600 !important; color: #000000 !important; }
+    .taz-col-ref, .taz-ref-item { font-size: 12.5px !important; font-weight: 600 !important; color: #000000 !important; }
+    .taz-clean-table th { font-size: 12.5px !important; font-weight: 800 !important; color: #000000 !important; }
+    .taz-clean-cat-text { font-size: 13px !important; font-weight: 800 !important; color: #000000 !important; }
+    .taz-clean-pi-row { font-size: 12.5px !important; color: #000000 !important; }
+    .taz-clean-pi-label, .taz-clean-pi-sep { font-size: 12.5px !important; font-weight: 700 !important; color: #000000 !important; }
+    .taz-clean-pi-val { font-size: 12.5px !important; color: #000000 !important; }
+    .taz-clean-pi-val.bold-name, .taz-clean-pi-val.bold-code { font-size: 13.5px !important; font-weight: 800 !important; color: #000000 !important; }
+    .taz-clean-continuation-wrap { display: flex !important; justify-content: flex-end !important; align-items: center !important; margin-top: auto !important; padding: 8px 6px 14px 6px !important; border-top: 1px dashed #777777 !important; }
+    .taz-clean-continuation-text { font-size: 13px !important; font-weight: 800 !important; color: #000000 !important; letter-spacing: 0.6px !important; text-transform: uppercase !important; text-rendering: geometricPrecision !important; }
+    .taz-clean-sig-code { display: none !important; }
 
     /* No screen-only chrome */
     .no-print, .report-toolbar, .sidebar, .topbar,
@@ -7705,7 +7722,7 @@ function Reports({ onToast, navigate, route }) {
                                 PATIENT INFORMATION (CONTINUATION)
                               </div>
                               <div className="taz-clean-patient-card" style={{ padding: "8px 14px", marginTop: "4px" }}>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "11px", color: "#222", flexWrap: "wrap", gap: "10px", width: "100%" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "12.5px", color: "#111", flexWrap: "wrap", gap: "10px", width: "100%" }}>
                                   <div><span style={{ fontWeight: 700 }}>Patient ID:</span> {patient.id}</div>
                                   <div><span style={{ fontWeight: 700 }}>Patient Name:</span> <strong style={{ color: "#000" }}>{patient.name}</strong></div>
                                   <div><span style={{ fontWeight: 700 }}>Age/Gender:</span> {patient.age} Yrs / {patient.gender}</div>
@@ -7803,12 +7820,13 @@ function Reports({ onToast, navigate, route }) {
                                 />
                                 <div className="taz-clean-sig-tech">Lab Technician</div>
                                 <div className="taz-clean-sig-lab">TAZ DIAGNOSTICS</div>
-                                <div className="taz-clean-sig-code">Digital #2024 11:33:23 07/TC</div>
                               </div>
                             </>
                           ) : (
-                            <div style={{ textAlign: "right", fontSize: "10.5px", fontWeight: 700, color: "#555", padding: "4px 0" }}>
-                              Continued on Page {pageNumber + 1} ...
+                            <div className="taz-clean-continuation-wrap">
+                              <span className="taz-clean-continuation-text">
+                                CONTINUED ON PAGE {pageNumber + 1} &gt;&gt;
+                              </span>
                             </div>
                           )}
                         </div>

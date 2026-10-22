@@ -7,8 +7,38 @@ import {
   getDataVersion,
   isDbConnected
 } from "../db.js";
+import {
+  registerSseClient,
+  broadcastDataUpdate,
+  recordHeartbeat,
+  getActivePresence,
+  removeSession
+} from "../services/realtimeSync.js";
 
 const router = Router();
+
+// 0. Server-Sent Events (SSE) Live Data & Presence Stream
+router.get("/events", (req, res) => {
+  const clientId = req.query.clientId || "client_" + Math.random().toString(36).substring(2, 9);
+  registerSseClient(clientId, req, res);
+});
+
+// 0.1 Heartbeat / Active Logins Presence Tracker
+router.post("/presence/heartbeat", (req, res) => {
+  const clientIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress || req.ip;
+  recordHeartbeat(req.body, clientIp);
+  res.json({
+    success: true,
+    presence: getActivePresence()
+  });
+});
+
+router.get("/presence", (_req, res) => {
+  res.json({
+    success: true,
+    presence: getActivePresence()
+  });
+});
 
 // 1. Get current data version (for ultra-lightweight change detection / polling)
 router.get("/version", (req, res) => {
@@ -41,6 +71,14 @@ router.post("/all/sync", async (req, res) => {
   try {
     const bundle = req.body || {};
     const result = await saveAllCollectionsAsync(bundle, { merge: false });
+
+    // Instantly broadcast every updated collection to all connected SSE clients (Phone, PC)
+    for (const [col, colData] of Object.entries(bundle)) {
+      if (colData !== undefined && colData !== null) {
+        broadcastDataUpdate(col, result.version, colData);
+      }
+    }
+
     res.json({
       success: true,
       message: "All collections synchronized successfully",
@@ -110,6 +148,12 @@ router.post("/backup/import", async (req, res) => {
       return res.status(400).json({ success: false, error: "Invalid backup bundle format" });
     }
     const result = await saveAllCollectionsAsync(bundle);
+    const collections = bundle.data || bundle;
+    for (const [col, colData] of Object.entries(collections)) {
+      if (colData !== undefined && colData !== null) {
+        broadcastDataUpdate(col, result.version, colData);
+      }
+    }
     res.json({
       success: true,
       message: "Lifetime database restored successfully!",
@@ -143,6 +187,10 @@ router.post("/:collection", async (req, res) => {
     const { collection } = req.params;
     const data = req.body;
     const result = await saveCollectionAsync(collection, data, { merge: false });
+
+    // Instantly push update to all connected SSE clients (Phone, PC)
+    broadcastDataUpdate(collection, result.version, data);
+
     res.json({
       success: true,
       collection,
@@ -181,6 +229,10 @@ router.post("/:collection/item", async (req, res) => {
     }
 
     const result = await saveCollectionAsync(collection, updatedItems);
+
+    // Instantly push update to all connected SSE clients (Phone, PC)
+    broadcastDataUpdate(collection, result.version, updatedItems);
+
     res.json({
       success: true,
       collection,
@@ -202,6 +254,10 @@ router.delete("/:collection/:id", async (req, res) => {
     if (Array.isArray(currentItems)) {
       const updatedItems = currentItems.filter((x) => String(x.id) !== String(id) && String(x.code) !== String(id));
       const result = await saveCollectionAsync(collection, updatedItems, { merge: false });
+
+      // Instantly push update to all connected SSE clients (Phone, PC)
+      broadcastDataUpdate(collection, result.version, updatedItems);
+
       return res.json({
         success: true,
         collection,

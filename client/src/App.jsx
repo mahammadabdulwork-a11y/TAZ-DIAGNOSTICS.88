@@ -66,6 +66,8 @@ import {
   downloadLifetimeBackup,
   restoreLifetimeBackup,
   syncBatchToBackend,
+  getPresenceStatus,
+  onPresenceChange,
 } from "./services/dataSyncService.js";
 
 
@@ -1590,13 +1592,20 @@ function Layout({
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [syncStatus, setSyncStatus] = useState(() => getSyncStatus());
+  const [presence, setPresence] = useState(() => getPresenceStatus());
   const [showSyncModal, setShowSyncModal] = useState(false);
 
   useEffect(() => {
-    const unsub = onSyncStatusChange((status) => {
+    const unsubSync = onSyncStatusChange((status) => {
       setSyncStatus({ ...status });
     });
-    return unsub;
+    const unsubPresence = onPresenceChange((p) => {
+      setPresence({ ...p });
+    });
+    return () => {
+      unsubSync();
+      unsubPresence();
+    };
   }, []);
 
   const menu = [
@@ -1707,6 +1716,41 @@ function Layout({
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            {/* Live Logged-in Devices Counter Badge */}
+            <button
+              type="button"
+              id="btn-active-devices-count"
+              onClick={() => setShowSyncModal(true)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "7px",
+                fontSize: "12px",
+                fontWeight: "700",
+                padding: "6px 14px",
+                borderRadius: "20px",
+                backgroundColor: "#ECFDF5",
+                color: "#065F46",
+                border: "1px solid #A7F3D0",
+                boxShadow: "0 1px 3px rgba(6,95,70,0.1)",
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+              }}
+              title="Click to view all logged-in devices and direct connection link"
+            >
+              <span
+                style={{
+                  width: "8px",
+                  height: "8px",
+                  borderRadius: "50%",
+                  backgroundColor: "#10B981",
+                  boxShadow: "0 0 8px #10B981"
+                }}
+              />
+              <span>👥 {presence.activeCount || 1} Device{(presence.activeCount || 1) > 1 ? "s" : ""} Logged In</span>
+            </button>
+
+            {/* Direct Connect Button */}
             <button
               type="button"
               id="btn-connect-phone-pc"
@@ -1726,41 +1770,11 @@ function Layout({
                 boxShadow: "0 1px 3px rgba(139,23,48,0.08)",
                 transition: "all 0.15s ease",
               }}
-              title="Connect Mobile Phone or Other Computers to this Lab"
+              title="Direct Link to Connect Phone & Other PCs"
             >
-              <QrCode size={15} color="#8b1730" />
+              <Smartphone size={15} color="#8b1730" />
               <span>📱 Connect Phone / PC</span>
             </button>
-
-            <div
-              onClick={() => setShowSyncModal(true)}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "7px",
-                fontSize: "12px",
-                fontWeight: "600",
-                padding: "5px 12px",
-                borderRadius: "20px",
-                backgroundColor: "#ECFDF5",
-                color: "#065F46",
-                border: "1px solid #A7F3D0",
-                boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
-                cursor: "pointer",
-              }}
-              title="Click to open Phone & PC Connection Hub"
-            >
-              <span
-                style={{
-                  width: "8px",
-                  height: "8px",
-                  borderRadius: "50%",
-                  backgroundColor: "#10B981",
-                  boxShadow: "0 0 8px #10B981"
-                }}
-              />
-              <span>🟢 Live Phone & PC Synced</span>
-            </div>
 
             <div className="topuser">
               <div className="avatar">
@@ -1780,6 +1794,7 @@ function Layout({
       {showSyncModal && (
         <SyncConfigModal
           syncStatus={syncStatus}
+          presence={presence}
           onClose={() => setShowSyncModal(false)}
           onToast={onToast}
         />
@@ -1788,7 +1803,7 @@ function Layout({
   );
 }
 
-function SyncConfigModal({ syncStatus, onClose, onToast }) {
+function SyncConfigModal({ syncStatus, presence, onClose, onToast }) {
   const [activeTab, setActiveTab] = useState("connect"); // "connect" | "lifetime"
   const [isTesting, setIsTesting] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -1947,7 +1962,7 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
         {/* Tab Content */}
         <div style={{ padding: "18px 20px", overflowY: "auto", flex: 1, fontSize: "13px", lineHeight: "1.5" }}>
 
-          {/* TAB 1: PHONE & PC CONNECTION */}
+          {/* TAB 1: PHONE & PC DIRECT CONNECTION & ACTIVE LOGINS */}
           {activeTab === "connect" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               {/* Green Live Synced Banner */}
@@ -1971,124 +1986,114 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
                 }} />
                 <div>
                   <strong style={{ color: "#065F46", fontSize: "13px" }}>
-                    🟢 Live Two-Way Sync Active
+                    🟢 Instant Live Two-Way Sync Active (No Scanner Needed)
                   </strong>
                   <div style={{ fontSize: "12px", color: "#047857", marginTop: "3px" }}>
-                    Whatever you do on your mobile phone or laptop (add patient, delete patient, add test, add doctor, update report, billing) updates on both devices in real time.
+                    Whatever you add or update on your mobile phone or laptop (patients, doctors, tests, reports, billing) updates on all computers instantly in real time.
                   </div>
                 </div>
               </div>
 
-              {/* QR Code and Quick Open Section */}
+              {/* Direct Connection Link Box (Direct Connect, No Scanners) */}
               <div style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "20px",
                 padding: "16px",
                 backgroundColor: "#F9FAFB",
                 borderRadius: "12px",
-                border: "1px solid #E5E7EB",
-                flexWrap: "wrap",
-                justifyContent: "center"
+                border: "1.5px solid #10B981",
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px"
               }}>
-                {/* Clickable QR Code Card */}
-                <div
-                  onClick={handleOpenMobile}
-                  title="Click to open Lab Portal in new tab"
-                  style={{
-                    padding: "12px",
-                    backgroundColor: "#FFFFFF",
-                    borderRadius: "12px",
-                    boxShadow: "0 3px 10px rgba(0,0,0,0.08)",
-                    border: "2px solid #10B981",
-                    textAlign: "center",
-                    cursor: "pointer",
-                    transition: "transform 0.15s ease",
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.03)"}
-                  onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
-                >
-                  <img
-                    src={qrCodeUrl}
-                    alt="Mobile Access QR Code"
-                    style={{ width: "160px", height: "160px", display: "block" }}
-                  />
-                  <div style={{
-                    fontSize: "12px",
-                    color: "#065F46",
-                    marginTop: "8px",
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <label style={{ fontSize: "12px", fontWeight: "800", textTransform: "uppercase", color: "#065F46" }}>
+                    🔗 Direct Lab Link for Phone or Any Computer:
+                  </label>
+                  <span style={{
+                    fontSize: "11px",
                     fontWeight: "700",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "4px"
+                    backgroundColor: "#DCFCE7",
+                    color: "#166534",
+                    padding: "3px 8px",
+                    borderRadius: "12px"
                   }}>
-                    <span>👆 Tap / Click to Open</span>
-                    <ExternalLink size={13} />
-                  </div>
-                  <div style={{ fontSize: "10px", color: "#6B7280" }}>
-                    Or scan with phone camera
-                  </div>
+                    Direct Connect
+                  </span>
                 </div>
 
-                {/* Direct Link and Quick Open Buttons */}
-                <div style={{ flex: "1 1 240px", display: "flex", flexDirection: "column", gap: "10px" }}>
-                  <div>
-                    <label style={{ fontSize: "11px", fontWeight: "700", textTransform: "uppercase", color: "#6B7280" }}>
-                      Direct Link for Phone or Any PC:
-                    </label>
-                    <div style={{
+                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                  <input
+                    readOnly
+                    value={mobileUrl}
+                    style={{
+                      flex: 1,
+                      padding: "10px 12px",
+                      borderRadius: "8px",
+                      border: "1px solid #D1D5DB",
+                      backgroundColor: "#FFFFFF",
+                      fontSize: "14px",
+                      fontWeight: "700",
+                      color: "#111827",
+                      fontFamily: "monospace"
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCopyLink}
+                    style={{
+                      padding: "10px 16px",
+                      borderRadius: "8px",
+                      border: "1px solid #10B981",
+                      backgroundColor: copiedLink ? "#10B981" : "#ECFDF5",
+                      color: copiedLink ? "#FFFFFF" : "#065F46",
+                      fontWeight: "700",
+                      fontSize: "13px",
+                      cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
                       gap: "6px",
-                      marginTop: "4px"
-                    }}>
-                      <input
-                        readOnly
-                        value={mobileUrl}
-                        style={{
-                          flex: 1,
-                          padding: "8px 10px",
-                          borderRadius: "6px",
-                          border: "1px solid #D1D5DB",
-                          backgroundColor: "#FFFFFF",
-                          fontSize: "13px",
-                          fontWeight: "600",
-                          color: "#111827"
-                        }}
-                      />
-                      <button
-                        type="button"
-                        onClick={handleCopyLink}
-                        style={{
-                          padding: "8px 12px",
-                          borderRadius: "6px",
-                          border: "1px solid #10B981",
-                          backgroundColor: copiedLink ? "#10B981" : "#ECFDF5",
-                          color: copiedLink ? "#FFFFFF" : "#065F46",
-                          fontWeight: "600",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "4px",
-                          whiteSpace: "nowrap"
-                        }}
-                        title="Copy link"
-                      >
-                        {copiedLink ? <Check size={14} /> : <Copy size={14} />}
-                        {copiedLink ? "Copied!" : "Copy"}
-                      </button>
-                    </div>
-                  </div>
+                      whiteSpace: "nowrap"
+                    }}
+                    title="Copy direct link"
+                  >
+                    {copiedLink ? <Check size={16} /> : <Copy size={16} />}
+                    {copiedLink ? "Copied!" : "📋 Copy Link"}
+                  </button>
+                </div>
 
-                  {/* Big Green Open Button */}
+                {/* 1-Click WhatsApp Share & Direct Open Buttons */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                  <a
+                    href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
+                      `Open TAZ Diagnostic Lab on your phone or PC:\n${mobileUrl}\nLogin Credentials:\nUsername: Taz@18\nPassword: Sofiya@2010`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                      padding: "10px 12px",
+                      borderRadius: "8px",
+                      backgroundColor: "#25D366",
+                      color: "#FFFFFF",
+                      fontWeight: "700",
+                      fontSize: "13px",
+                      textDecoration: "none",
+                      boxShadow: "0 2px 4px rgba(37,211,102,0.25)"
+                    }}
+                  >
+                    <MessageSquare size={16} />
+                    <span>💬 Send Link via WhatsApp</span>
+                  </a>
+
                   <Button
                     primary
                     onClick={handleOpenMobile}
                     style={{
                       width: "100%",
                       justifyContent: "center",
-                      padding: "10px",
+                      padding: "10px 12px",
                       fontSize: "13px",
                       fontWeight: "700",
                       display: "flex",
@@ -2097,57 +2102,184 @@ function SyncConfigModal({ syncStatus, onClose, onToast }) {
                     }}
                   >
                     <ExternalLink size={16} />
-                    🚀 Open Lab Portal Now (Click Here)
+                    <span>🚀 Open on This Device</span>
                   </Button>
+                </div>
 
-                  {/* Credentials helper */}
-                  <div style={{
-                    padding: "10px 12px",
-                    backgroundColor: "#EFF6FF",
-                    border: "1px solid #BFDBFE",
-                    borderRadius: "8px"
-                  }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ fontSize: "11px", fontWeight: "700", color: "#1E40AF" }}>
-                        🔑 Login Credentials:
-                      </span>
-                      <button
-                        type="button"
-                        onClick={handleCopyCreds}
-                        style={{
-                          background: "none",
-                          border: "none",
-                          color: "#2563EB",
-                          fontSize: "11px",
-                          cursor: "pointer",
-                          fontWeight: "600",
-                          textDecoration: "underline"
-                        }}
-                      >
-                        {copiedCreds ? "Copied!" : "Copy Login"}
-                      </button>
-                    </div>
-                    <div style={{ fontSize: "12px", color: "#1E3A8A", marginTop: "4px" }}>
+                {/* Login Credentials Helper Card */}
+                <div style={{
+                  padding: "10px 14px",
+                  backgroundColor: "#EFF6FF",
+                  border: "1px solid #BFDBFE",
+                  borderRadius: "8px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center"
+                }}>
+                  <div>
+                    <span style={{ fontSize: "11px", fontWeight: "700", color: "#1E40AF", display: "block" }}>
+                      🔑 Login Credentials for Any Device:
+                    </span>
+                    <span style={{ fontSize: "12px", color: "#1E3A8A", fontWeight: "600" }}>
                       Username: <b>Taz@18</b> &nbsp;|&nbsp; Password: <b>Sofiya@2010</b>
-                    </div>
+                    </span>
                   </div>
+                  <button
+                    type="button"
+                    onClick={handleCopyCreds}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#2563EB",
+                      fontSize: "12px",
+                      cursor: "pointer",
+                      fontWeight: "700",
+                      textDecoration: "underline"
+                    }}
+                  >
+                    {copiedCreds ? "Copied!" : "Copy Login"}
+                  </button>
                 </div>
               </div>
 
-              {/* Quick 3-Step Guide */}
+              {/* LIVE PRESENCE: HOW MANY ARE LOGGED IN RIGHT NOW */}
               <div style={{
-                backgroundColor: "#F3F4F6",
-                borderRadius: "8px",
-                padding: "12px 14px",
-                fontSize: "12px",
-                color: "#374151"
+                backgroundColor: "#FFFFFF",
+                borderRadius: "12px",
+                border: "1px solid #E5E7EB",
+                padding: "16px",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.04)"
               }}>
-                <strong style={{ display: "block", marginBottom: "6px" }}>📱 How to Connect Your Mobile Phone:</strong>
-                <ol style={{ margin: 0, paddingLeft: "18px", display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <li>Ensure your phone is connected to the same clinic Wi-Fi (or mobile hotspot).</li>
-                  <li>Scan the QR code above with your phone camera, or open <b>{mobileUrl}</b> in Chrome/Safari.</li>
-                  <li>Sign in with <b>Taz@18</b> / <b>Sofiya@2010</b>. Everything you add, edit, or delete synchronizes immediately with this PC!</li>
-                </ol>
+                <div style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "12px",
+                  paddingBottom: "8px",
+                  borderBottom: "1px solid #F3F4F6"
+                }}>
+                  <strong style={{ display: "flex", alignItems: "center", gap: "8px", color: "#111827", fontSize: "14px" }}>
+                    <Users size={18} color="#059669" />
+                    Currently Logged In & Active Devices:
+                  </strong>
+                  <span style={{
+                    fontSize: "12px",
+                    fontWeight: "800",
+                    color: "#065F46",
+                    backgroundColor: "#ECFDF5",
+                    border: "1px solid #A7F3D0",
+                    padding: "3px 10px",
+                    borderRadius: "12px",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px"
+                  }}>
+                    <span style={{
+                      width: "7px",
+                      height: "7px",
+                      borderRadius: "50%",
+                      backgroundColor: "#10B981"
+                    }} />
+                    {presence?.activeCount || 1} Device{(presence?.activeCount || 1) > 1 ? "s" : ""} Active Now
+                  </span>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  {(presence?.sessions && presence.sessions.length > 0
+                    ? presence.sessions
+                    : [
+                        {
+                          clientId: "host_pc",
+                          deviceType: "Desktop PC / Laptop",
+                          userName: "Admin",
+                          role: "admin",
+                          ip: "This PC (Host Server)",
+                          currentPath: "/dashboard"
+                        }
+                      ]
+                  ).map((sess, idx) => {
+                    const isPhone = (sess.deviceType || "").toLowerCase().includes("phone") || (sess.deviceType || "").toLowerCase().includes("mobile");
+                    return (
+                      <div
+                        key={sess.clientId || idx}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          padding: "10px 14px",
+                          borderRadius: "8px",
+                          backgroundColor: "#F9FAFB",
+                          border: "1px solid #E5E7EB"
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                          <div style={{
+                            width: "36px",
+                            height: "36px",
+                            borderRadius: "8px",
+                            backgroundColor: isPhone ? "#EFF6FF" : "#ECFDF5",
+                            color: isPhone ? "#2563EB" : "#059669",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "18px"
+                          }}>
+                            {isPhone ? <Smartphone size={20} /> : <Laptop size={20} />}
+                          </div>
+                          <div>
+                            <div style={{ fontWeight: "700", color: "#1F2937", fontSize: "13px" }}>
+                              {sess.userName || "Staff Member"} &nbsp;
+                              <span style={{ fontSize: "11px", fontWeight: "600", color: "#6B7280", textTransform: "capitalize" }}>
+                                ({sess.role || "user"})
+                              </span>
+                            </div>
+                            <div style={{ fontSize: "11px", color: "#6B7280" }}>
+                              {sess.deviceType || "Device"} &bull; {sess.ip || "Local Network"}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ textAlign: "right" }}>
+                          <span style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "5px",
+                            fontSize: "11px",
+                            fontWeight: "700",
+                            color: "#065F46",
+                            backgroundColor: "#ECFDF5",
+                            padding: "3px 8px",
+                            borderRadius: "10px"
+                          }}>
+                            <span style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "#10B981" }} />
+                            Online (Active)
+                          </span>
+                          {sess.currentPath && (
+                            <div style={{ fontSize: "10px", color: "#9CA3AF", marginTop: "2px" }}>
+                              Page: {sess.currentPath}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div style={{
+                  fontSize: "11px",
+                  color: "#6B7280",
+                  marginTop: "12px",
+                  paddingTop: "8px",
+                  borderTop: "1px dashed #E5E7EB",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px"
+                }}>
+                  <span>💡</span>
+                  <span>
+                    When someone opens the lab link on their phone or another PC, that device automatically appears here in real time!
+                  </span>
+                </div>
               </div>
             </div>
           )}

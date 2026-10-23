@@ -226,6 +226,10 @@ let isIncomingSseUpdate = false;
 
 export function startRealtimeSse() {
   if (typeof window === "undefined" || !("EventSource" in window)) return;
+  // Vercel serverless functions terminate persistent connections after 10-15s; use polling instead on vercel.app
+  if (window.location.hostname.includes("vercel.app")) {
+    return;
+  }
   if (eventSource) {
     try {
       eventSource.close();

@@ -32,11 +32,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const CLIENT_DIST = path.resolve(__dirname, "../../client/dist");
 
-// API Routes
+// API Routes (supports both direct /api/* and rewritten /* on serverless)
 app.use("/api/data", dataSyncRouter);
+app.use("/data", dataSyncRouter);
 app.use("/api/store", dataSyncRouter);
+app.use("/store", dataSyncRouter);
 app.use("/api/reminders", remindersRouter);
+app.use("/reminders", remindersRouter);
 app.use("/api/whatsapp", webhookRouter);
+app.use("/whatsapp", webhookRouter);
 
 // Serve static frontend build if it exists
 if (fs.existsSync(CLIENT_DIST)) {

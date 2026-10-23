@@ -11,7 +11,10 @@ import {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DATA_DIR = path.join(__dirname, "..", "data");
+const isVercel = process.env.VERCEL === "1";
+const DATA_DIR = isVercel
+  ? path.join("/tmp", "taz_data")
+  : path.join(__dirname, "..", "data");
 
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -23,6 +26,16 @@ const BACKUP_DIR = path.join(DATA_DIR, "backups");
 
 if (!fs.existsSync(BACKUP_DIR)) {
   fs.mkdirSync(BACKUP_DIR, { recursive: true });
+}
+
+// Seed Vercel /tmp from bundled app_store.json if available
+if (isVercel && !fs.existsSync(APP_STORE_FILE)) {
+  try {
+    const bundledStore = path.join(__dirname, "..", "data", "app_store.json");
+    if (fs.existsSync(bundledStore)) {
+      fs.copyFileSync(bundledStore, APP_STORE_FILE);
+    }
+  } catch {}
 }
 
 try {

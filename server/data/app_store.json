@@ -105,6 +105,67 @@
       "phone": "9876543219",
       "age": "28",
       "gender": "Female"
+    },
+    {
+      "id": "PAT006",
+      "name": "ram",
+      "phone": "4595265222",
+      "age": "32",
+      "gender": "Female",
+      "email": "",
+      "referredBy": "Dr. Ahmed Khan",
+      "branch": "Main Branch",
+      "date": "2026-10-23",
+      "tests": [
+        "TST001",
+        "TST005"
+      ]
+    },
+    {
+      "id": "PAT007",
+      "name": "Abdul",
+      "phone": "8688508421",
+      "age": "20",
+      "gender": "Male",
+      "email": "",
+      "referredBy": "Dr. Ananya Rao",
+      "branch": "Main Branch",
+      "date": "2026-10-23",
+      "tests": [
+        "TST001",
+        "TST002",
+        "TST003",
+        "TST004",
+        "TST005",
+        "TST006",
+        "TST007",
+        "TST008",
+        "TST009",
+        "TST010",
+        "TST011",
+        "TST012"
+      ]
+    },
+    {
+      "id": "PAT008",
+      "name": "Rammmmmmm",
+      "phone": "23567890754",
+      "age": "47",
+      "gender": "Male",
+      "email": "",
+      "referredBy": "Dr. Rahul Mehta",
+      "branch": "Main Branch",
+      "date": "2026-10-23",
+      "tests": [
+        "TST025",
+        "TST026",
+        "TST027",
+        "TST028",
+        "TST029",
+        "TST030",
+        "TST031",
+        "TST032"
+      ]
     }
   ],
   "doctors": [
@@ -139,6 +200,15 @@
       "phone": "9988776655",
       "email": "priya@tazdiagnostic.com",
       "status": "Active"
+    },
+    {
+      "id": "DOC005",
+      "name": "Jam",
+      "specialization": "Fuksk",
+      "phone": "945799292929",
+      "email": "",
+      "status": "Active",
+      "updatedAt": "2026-10-23T04:38:50.566Z"
     }
   ],
   "tests": [
@@ -1040,6 +1110,33 @@
       "date": "2026-10-21",
       "status": "Pending",
       "results": {}
+    },
+    {
+      "id": "REP005",
+      "patientId": "PAT006",
+      "doctor": "Dr. Ahmed Khan",
+      "date": "2026-10-23",
+      "status": "Completed",
+      "results": {
+        "TST001": "95626",
+        "TST005": "5962"
+      }
+    },
+    {
+      "id": "REP006",
+      "patientId": "PAT007",
+      "doctor": "Dr. Ananya Rao",
+      "date": "2026-10-23",
+      "status": "Pending",
+      "results": {}
+    },
+    {
+      "id": "REP007",
+      "patientId": "PAT008",
+      "doctor": "Dr. Rahul Mehta",
+      "date": "2026-10-23",
+      "status": "Pending",
+      "results": {}
     }
   ],
   "bills": [
@@ -1075,6 +1172,33 @@
       "patientId": "PAT004",
       "date": "2026-10-21",
       "amount": 100,
+      "paid": 0,
+      "mode": "Cash",
+      "status": "Pending"
+    },
+    {
+      "id": "BILL005",
+      "patientId": "PAT006",
+      "date": "2026-10-23",
+      "amount": 100,
+      "paid": 0,
+      "mode": "Cash",
+      "status": "Pending"
+    },
+    {
+      "id": "BILL006",
+      "patientId": "PAT007",
+      "date": "2026-10-23",
+      "amount": 300,
+      "paid": 0,
+      "mode": "Cash",
+      "status": "Pending"
+    },
+    {
+      "id": "BILL007",
+      "patientId": "PAT008",
+      "date": "2026-10-23",
+      "amount": 250,
       "paid": 0,
       "mode": "Cash",
       "status": "Pending"
@@ -1121,5 +1245,5 @@
     "retestCycleDays": 30,
     "whatsappTemplateName": "taz_monthly_retest_reminder"
   },
-  "_version": 1792653894042
+  "_version": 1792730330610
 }

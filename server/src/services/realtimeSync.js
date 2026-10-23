@@ -35,8 +35,6 @@ export function registerSseClient(clientId, req, res) {
   req.on("close", () => {
     clearInterval(keepAliveInterval);
     sseClients.delete(clientId);
-    activeSessions.delete(clientId);
-    broadcastPresence();
   });
 }
 
@@ -97,7 +95,7 @@ export function removeSession(clientId) {
 }
 
 function pruneDeadSessions() {
-  const cutoff = Date.now() - 25000; // 25 seconds without heartbeat = disconnected
+  const cutoff = Date.now() - 60000; // 60 seconds without heartbeat = disconnected
   for (const [id, session] of activeSessions.entries()) {
     if (session.lastSeen < cutoff) {
       activeSessions.delete(id);

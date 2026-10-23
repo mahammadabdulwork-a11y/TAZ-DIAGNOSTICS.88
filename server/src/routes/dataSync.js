@@ -19,6 +19,14 @@ const router = Router();
 
 // 0. Server-Sent Events (SSE) Live Data & Presence Stream
 router.get("/events", (req, res) => {
+  if (process.env.VERCEL === "1") {
+    // Vercel serverless does not allow long-lived HTTP streams; return immediately with presence
+    return res.json({
+      success: true,
+      message: "Serverless mode: polling active",
+      presence: getActivePresence()
+    });
+  }
   const clientId = req.query.clientId || "client_" + Math.random().toString(36).substring(2, 9);
   registerSseClient(clientId, req, res);
 });

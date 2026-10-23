@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import {
   Activity,
   AlertCircle,
@@ -7089,130 +7091,44 @@ function Reports({ onToast, navigate, route }) {
 
     const patName = (patient.name || "Patient").replace(/[^a-zA-Z0-9]/g, "_");
     const repCode = String(report.id || "REP").replace(/[^a-zA-Z0-9]/g, "_");
-    const safeFileName = `TAZ_Report_${patName}_${repCode}`;
+    const safeFileName = `TAZ_Report_${patName}_${repCode}.pdf`;
 
     setIsGeneratingPdf(true);
-    onToast(`Opening PDF print dialog (${sheetElements.length} page${sheetElements.length > 1 ? "s" : ""})...`, "info");
+    onToast(`Generating PDF file (${sheetElements.length} pages)... Please wait a moment.`, "info");
 
     try {
-      // Collect all styles from the current document
-      const styleSheets = Array.from(document.styleSheets)
-        .map((ss) => {
-          try {
-            return Array.from(ss.cssRules || []).map((r) => r.cssText).join("\n");
-          } catch {
-            // Cross-origin stylesheets — skip
-            return "";
-          }
-        })
-        .join("\n");
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+        compress: true
+      });
 
-      // Collect all sheet HTML
-      const pagesHtml = sheetElements.map((el) => el.outerHTML).join("\n");
+      for (let i = 0; i < sheetElements.length; i++) {
+        const sheet = sheetElements[i];
 
-      const printWindow = window.open("", "_blank", "width=900,height=700");
-      if (!printWindow) {
-        onToast("Popup blocked! Please allow popups for this site, then try again.", "error");
-        setIsGeneratingPdf(false);
-        return;
+        // 2.5x high-definition rendering (250 DPI) for crystal clear, non-blurry text
+        const canvas = await html2canvas(sheet, {
+          scale: 2.5,
+          useCORS: true,
+          logging: false,
+          allowTaint: true,
+          backgroundColor: "#ffffff"
+        });
+
+        const imgData = canvas.toDataURL("image/jpeg", 0.95);
+        if (i > 0) {
+          pdf.addPage("a4", "portrait");
+        }
+        pdf.addImage(imgData, "JPEG", 0, 0, 210, 297, undefined, "FAST");
       }
 
-      printWindow.document.write(`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>${safeFileName}</title>
-  <style>
-    ${styleSheets}
-
-    /* ── Print / PDF overrides ── */
-    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-
-    body { margin: 0; padding: 0; background: #fff; }
-
-    @page {
-      size: A4 portrait;
-      margin: 0;
-    }
-
-    /* Each sheet = one A4 page */
-    .paper.report-sheet {
-      width: 210mm !important;
-      min-height: 297mm !important;
-      max-height: 297mm !important;
-      overflow: hidden !important;
-      page-break-after: always !important;
-      break-after: page !important;
-      box-sizing: border-box !important;
-      box-shadow: none !important;
-      margin: 0 !important;
-      padding: 8mm 14mm 14mm 14mm !important;
-      border: none !important;
-      display: flex !important;
-      flex-direction: column !important;
-      justify-content: flex-start !important;
-      background: #ffffff !important;
-    }
-
-    .paper.report-sheet:last-child {
-      page-break-after: avoid !important;
-      break-after: avoid !important;
-    }
-
-    .report-sheet-bottom {
-      margin-top: auto !important;
-    }
-
-    .taz-clean-header,
-    .taz-clean-patient-card,
-    .taz-clean-status-pill,
-    .taz-clean-green-icon,
-    .taz-clean-table,
-    .taz-clean-footer,
-    .taz-clean-continuation-wrap,
-    .taz-clean-continuation-text {
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-
-    .taz-test-name { font-size: 13.5px !important; font-weight: 700 !important; color: #000000 !important; }
-    .taz-test-method { font-size: 11px !important; color: #333333 !important; }
-    .taz-col-result, .taz-result-val { font-size: 14.5px !important; font-weight: 800 !important; color: #000000 !important; }
-    .taz-col-unit { font-size: 12.5px !important; font-weight: 600 !important; color: #000000 !important; }
-    .taz-col-ref, .taz-ref-item { font-size: 12.5px !important; font-weight: 600 !important; color: #000000 !important; }
-    .taz-clean-table th { font-size: 12.5px !important; font-weight: 800 !important; color: #000000 !important; }
-    .taz-clean-cat-text { font-size: 13px !important; font-weight: 800 !important; color: #000000 !important; }
-    .taz-clean-pi-row { font-size: 12.5px !important; color: #000000 !important; }
-    .taz-clean-pi-label, .taz-clean-pi-sep { font-size: 12.5px !important; font-weight: 700 !important; color: #000000 !important; }
-    .taz-clean-pi-val { font-size: 12.5px !important; color: #000000 !important; }
-    .taz-clean-pi-val.bold-name, .taz-clean-pi-val.bold-code { font-size: 13.5px !important; font-weight: 800 !important; color: #000000 !important; }
-    .taz-clean-continuation-wrap { display: flex !important; justify-content: flex-end !important; align-items: center !important; margin-top: auto !important; padding: 8px 6px 14px 6px !important; border-top: 1px dashed #777777 !important; }
-    .taz-clean-continuation-text { font-size: 13px !important; font-weight: 800 !important; color: #000000 !important; letter-spacing: 0.6px !important; text-transform: uppercase !important; text-rendering: geometricPrecision !important; }
-    .taz-clean-sig-code { display: none !important; }
-
-    /* No screen-only chrome */
-    .no-print, .report-toolbar, .sidebar, .topbar,
-    nav, header.app-header, .app-sidebar, button, .btn { display: none !important; }
-  </style>
-</head>
-<body>
-  ${pagesHtml}
-  <script>
-    window.onload = function() {
-      setTimeout(function() {
-        window.focus();
-        window.print();
-      }, 600);
-    };
-  <\/script>
-</body>
-</html>`);
-
-      printWindow.document.close();
-      onToast(`PDF dialog opened — choose "Save as PDF" in the print dialog and name it: ${safeFileName}`, "success");
+      // Directly trigger browser file download into Downloads folder!
+      pdf.save(safeFileName);
+      onToast(`PDF downloaded successfully! Saved as ${safeFileName} in your Downloads folder.`, "success");
     } catch (err) {
-      console.error("PDF generation failed:", err);
-      onToast("Failed to open PDF window. Check popup permissions.", "error");
+      console.error("Direct PDF generation error:", err);
+      printReport();
     } finally {
       setIsGeneratingPdf(false);
     }
@@ -7300,7 +7216,7 @@ function Reports({ onToast, navigate, route }) {
             </>
           ) : (
             <>
-              <Download size={16} /> Save into PDF
+              <Download size={16} /> Download PDF File
             </>
           )}
         </Button>
@@ -7604,7 +7520,7 @@ function Reports({ onToast, navigate, route }) {
                     </>
                   ) : (
                     <>
-                      <Download size={15} /> Save into PDF ({totalPages} A4 {totalPages === 1 ? "Page" : "Pages"})
+                      <Download size={15} /> Download PDF File ({totalPages} A4 {totalPages === 1 ? "Page" : "Pages"})
                     </>
                   )}
                 </button>
